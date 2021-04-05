@@ -1,7 +1,7 @@
 package lila.streamer
 
 import org.joda.time.DateTime
-
+import reactivemongo.api.ReadPreference
 import scala.concurrent.duration._
 
 import lila.db.dsl._
@@ -68,7 +68,8 @@ final class StreamerApi(
       cache.listedIds.invalidateUnit() inject {
         val modChange = Streamer.ModChange(
           list = prev.approval.granted != streamer.approval.granted option streamer.approval.granted,
-          tier = prev.approval.tier != streamer.approval.tier option streamer.approval.tier
+          tier = prev.approval.tier != streamer.approval.tier option streamer.approval.tier,
+          decline = !streamer.approval.granted && !streamer.approval.requested && prev.approval.requested
         )
         import lila.notify.Notification.Notifies
         import lila.notify.Notification
@@ -77,7 +78,7 @@ final class StreamerApi(
             Notification.make(
               Notifies(streamer.userId),
               lila.notify.GenericLink(
-                url = s"/streamer/edit",
+                url = "/streamer/edit",
                 title = "Listed on /streamer".some,
                 text = "Your streamer page is public".some,
                 icon = ""
@@ -154,6 +155,25 @@ final class StreamerApi(
         )
       )
   }
+
+  def sameChannels(streamer: Streamer): Fu[List[Streamer]] =
+    coll
+      .find(
+        $doc(
+          "$or" -> List(
+            streamer.twitch.map(_.userId).map { t =>
+              $doc("twitch.userId" -> t)
+            },
+            streamer.youTube.map(_.channelId).map { t =>
+              $doc("youTube.channelId" -> t)
+            }
+          ).flatten,
+          "_id" $ne streamer.userId
+        )
+      )
+      .sort($sort desc "createdAt")
+      .cursor[Streamer](readPreference = ReadPreference.secondaryPreferred)
+      .list(10)
 
   private object cache {
 

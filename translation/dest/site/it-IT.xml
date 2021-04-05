@@ -9,6 +9,7 @@
   <string name="yourTurn">Tocca a te</string>
   <string name="aiNameLevelAiLevel">%1$s livello %2$s</string>
   <string name="level">Livello</string>
+  <string name="strength">Forza</string>
   <string name="toggleTheChat">Attiva/disattiva la chat</string>
   <string name="toggleSound">Attiva/disattiva audio</string>
   <string name="chat">Chat</string>
@@ -383,7 +384,6 @@ analizzarla con il computer, commentarla in chat, e condividerla tramite un indi
   <string name="more">Altro</string>
   <string name="memberSince">Membro dal</string>
   <string name="lastSeenActive">Ultimo accesso %s</string>
-  <string name="challengeToPlay">Sfida a una partita</string>
   <string name="player">Giocatore</string>
   <string name="list">Lista</string>
   <string name="graph">Grafico</string>
@@ -448,6 +448,7 @@ analizzarla con il computer, commentarla in chat, e condividerla tramite un indi
   <string name="lastName">Cognome</string>
   <string name="biography">Biografia</string>
   <string name="country">Paese</string>
+  <string name="thankYou">Grazie!</string>
   <string name="socialMediaLinks">Collegamenti ai social media</string>
   <string name="inlineNotation">Notazione in linea</string>
   <string name="watchLichessTV">Guarda la TV di Lichess</string>
@@ -456,34 +457,7 @@ analizzarla con il computer, commentarla in chat, e condividerla tramite un indi
   <string name="activeToday">Attivi oggi</string>
   <string name="activePlayers">Giocatori attivi</string>
   <string name="bewareTheGameIsRatedButHasNoClock">Attenzione, la partita è classificata ma senza limite di tempo!</string>
-  <string name="yourPuzzleRatingX">Il tuo punteggio nelle tattiche: %s</string>
-  <string name="findTheBestMoveForWhite">Trova la mossa migliore per il Bianco.</string>
-  <string name="findTheBestMoveForBlack">Trova la mossa migliore per il Nero.</string>
-  <string name="toTrackYourProgress">Tieni traccia dei tuoi progressi:</string>
-  <string name="puzzleId">Tattica %s</string>
-  <string name="puzzleOfTheDay">Tattica del giorno</string>
-  <string name="clickToSolve">Clicca per risolvere</string>
-  <string name="goodMove">Buona mossa</string>
-  <string name="butYouCanDoBetter">Puoi fare una mossa migliore.</string>
-  <string name="bestMove">La mossa migliore!</string>
-  <string name="keepGoing">Continua...</string>
-  <string name="puzzleFailed">Soluzione sbagliata</string>
-  <string name="butYouCanKeepTrying">Ma puoi riprovare.</string>
   <string name="success">Risolto</string>
-  <string name="wasThisPuzzleAnyGood">Questa tattica era interessante?</string>
-  <string name="pleaseVotePuzzle">Aiuta lichess a migliorare, utilizza la freccia su o giù per votare:</string>
-  <string name="thankYou">Grazie!</string>
-  <string name="ratingX">Punteggio: %s</string>
-  <string name="hidden">nascosto</string>
-  <plurals name="playedXTimes">
-    <item quantity="one">Giocato %s volta</item>
-    <item quantity="other">Giocato %s volte</item>
-  </plurals>
-  <string name="fromGameLink">Dalla partita %s</string>
-  <string name="continueTraining">Continua allenamento</string>
-  <string name="retryThisPuzzle">Riprova questa tattica</string>
-  <string name="thisPuzzleIsCorrect">Questa tattica è giusta e interessante</string>
-  <string name="thisPuzzleIsWrong">Questa tattica è sbagliata o noiosa</string>
   <plurals name="nbGamesInPlay">
     <item quantity="one">%s partita in gioco</item>
     <item quantity="other">%s partite in gioco</item>
@@ -495,6 +469,8 @@ analizzarla con il computer, commentarla in chat, e condividerla tramite un indi
   <string name="tournamentWinners">Vincitori dei tornei</string>
   <string name="name">Nome</string>
   <string name="description">Descrizione</string>
+  <string name="descPrivate">Descrizione privata</string>
+  <string name="descPrivateHelp">Il testo che solo i membri del team vedranno. Se impostato sostituisce la descrizione pubblica per i membri del team.</string>
   <string name="no">No</string>
   <string name="yes">Sì</string>
   <string name="help">Aiuto:</string>
@@ -515,6 +491,7 @@ analizzarla con il computer, commentarla in chat, e condividerla tramite un indi
   <string name="cheat">Imbrogli</string>
   <string name="insult">Insulti</string>
   <string name="troll">Provocazioni</string>
+  <string name="ratingManipulation">Manipolazione del rating</string>
   <string name="other">Altro</string>
   <string name="reportDescriptionHelp">Incolla il link della partita/e e spiega cosa non va con questo giocatore. Non dire soltanto \"ha imbrogliato\", ma specifica come sei arrivato a questa conclusione. Il tuo report verrà processato più velocemente se scritto in lingua inglese.</string>
   <string name="error.provideOneCheatedGameLink">Si prega di fornire almeno un collegamento link di una partita in cui il giocatore ha imbrogliato.</string>
@@ -532,9 +509,12 @@ analizzarla con il computer, commentarla in chat, e condividerla tramite un indi
   <string name="currentPassword">Password attuale</string>
   <string name="newPassword">Nuova password</string>
   <string name="newPasswordAgain">Nuova password (ripeti)</string>
+  <string name="newPasswordsDontMatch">Le nuove password non coincidono</string>
+  <string name="newPasswordStrength">Sicurezza della password</string>
   <string name="clockInitialTime">Tempo iniziale</string>
   <string name="clockIncrement">Incremento orologio</string>
   <string name="privacy">Privacy</string>
+  <string name="privacyPolicy">privacy policy</string>
   <string name="letOtherPlayersFollowYou">Permetti ad altri giocatori di seguirti</string>
   <string name="letOtherPlayersChallengeYou">Permetti ad altri giocatori di sfidarti</string>
   <string name="letOtherPlayersInviteYouToStudy">Permetti ad altri giocatori di invitarti negli studi</string>
@@ -603,6 +583,7 @@ analizzarla con il computer, commentarla in chat, e condividerla tramite un indi
   <string name="error.email_unique">Questo indirizzo email è già utilizzato</string>
   <string name="error.email_different">Questo è già il tuo indirizzo mail</string>
   <string name="ifRatingIsPlusMinusX">Se il punteggio è ± %s</string>
+  <string name="onlyExistingConversations">Solo conversazioni esistenti</string>
   <string name="onlyFriends">Solo amici</string>
   <string name="menu">Menù</string>
   <string name="castling">Arrocco</string>
@@ -680,6 +661,7 @@ analizzarla con il computer, commentarla in chat, e condividerla tramite un indi
   <string name="ifYouDoNotSeeTheEmailCheckOtherPlaces">Se non vedi l\'e-mail, controlla la cartella spam o altre cartelle.</string>
   <string name="weHaveSentYouAnEmailTo">Abbiamo inviato un\'email all\'indirizzo %s. Clicca sul link nell\'email per reimpostare la password.</string>
   <string name="byRegisteringYouAgreeToBeBoundByOur">Registrandoti, accetti i nostri %s</string>
+  <string name="readAboutOur">Leggi la nostra %s.</string>
   <string name="networkLagBetweenYouAndLichess">Ping tra te e Lichess</string>
   <string name="timeToProcessAMoveOnLichessServer">Tempo per elaborare una mossa sul server di Lichess</string>
   <string name="downloadAnnotated">Scarica PGN annotato</string>
@@ -758,7 +740,6 @@ analizzarla con il computer, commentarla in chat, e condividerla tramite un indi
   <string name="error.unknown">Errore</string>
   <string name="custom">Personalizza</string>
   <string name="notifications">Notifiche</string>
-  <string name="challenges">Sfide</string>
   <string name="perfRatingX">Punteggio: %s</string>
   <plurals name="nbSecondsToPlayTheFirstMove">
     <item quantity="one">%s secondi per giocare la prima mossa</item>
@@ -805,12 +786,6 @@ analizzarla con il computer, commentarla in chat, e condividerla tramite un indi
   <string name="opening">Apertura</string>
   <string name="middlegame">Mediogioco</string>
   <string name="endgame">Finale</string>
-  <string name="registerToSendChallenges">Per favore, registrati per mandare sfide.</string>
-  <string name="youCannotChallengeX">Non puoi sfidare %s.</string>
-  <string name="xDoesNotAcceptChallenges">%s non accetta sfide.</string>
-  <string name="yourXRatingIsTooFarFromY">Il tuo punteggio %1$s è troppo diverso da %2$s.</string>
-  <string name="cannotChallengeDueToProvisionalXRating">Non puoi sfidare poiché hai ancora un punteggio provvisorio in %s.</string>
-  <string name="xOnlyAcceptsChallengesFromFriends">%s accetta solo sfide da amici.</string>
   <string name="conditionalPremoves">Premosse condizionali</string>
   <string name="addCurrentVariation">Aggiungi variazione corrente</string>
   <string name="playVariationToCreateConditionalPremoves">Gioca una variazione per creare premosse condizionali</string>
@@ -864,4 +839,22 @@ analizzarla con il computer, commentarla in chat, e condividerla tramite un indi
   <string name="youCannotPostYetPlaySomeGames">Non puoi ancora postare nei forum. Gioca qualche partita!</string>
   <string name="subscribe">Iscriviti</string>
   <string name="unsubscribe">Annullare l\'iscrizione</string>
+  <string name="mentionedYouInX"> ti ha menzionato in \"%1$s\".</string>
+  <string name="xMentionedYouInY"> %1$s ti ha citato in \"%2$s\".</string>
+  <string name="invitedYouToX"> ti ha invitato a \"%1$s\".</string>
+  <string name="xInvitedYouToY">%1$s ti ha invitato a \"%2$s\".</string>
+  <string name="youAreNowPartOfTeam">Ora fai parte del team.</string>
+  <string name="youHaveJoinedTeamX">Ti sei unito a \"%1$s\".</string>
+  <string name="someoneYouReportedWasBanned">Qualcuno che hai segnalato è stato bannato</string>
+  <string name="congratsYouWon">Complimenti, hai vinto!</string>
+  <string name="gameVsX">Partita contro %1$s</string>
+  <string name="resVsX">%1$s contro %2$s</string>
+  <string name="youJustBecamePatron">Sei appena diventato un mecenate di lichess.</string>
+  <string name="patronAccountExpired">Lo stato di mecenate è scaduto</string>
+  <string name="pleaseReconsiderRenewIt">Per favore considera di rinnovarlo!</string>
+  <string name="someoneReviewedYourCoachProfile">Qualcuno ha esaminato il tuo profilo di allenatore.</string>
+  <string name="newPendingReview">In attesa di verifica</string>
+  <string name="lostAgainstTOSViolator">Hai perso con qualcuno che ha violato i termini di servizio lichess</string>
+  <string name="refundXpointsTimeControlY" comment="refundXpointsTimeControlY&#10;&#10;%1$s is the number of points refunded&#10;%2$s is the type of the rating - bullet, blitz and classical games have separate ratings.&#10;&#10;Ratings are refunded when Lichess detects that a player has lost points due to another player's cheating.">Rimborso: %1$s %2$s punti di valutazione.</string>
+  <string name="timeAlmostUp">Il tempo è quasi finito!</string>
 </resources>

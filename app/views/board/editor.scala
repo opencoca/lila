@@ -13,15 +13,14 @@ object editor {
   def apply(
       sit: chess.Situation,
       fen: FEN,
-      positionsJson: String,
-      animationDuration: scala.concurrent.duration.Duration
+      positionsJson: String
   )(implicit ctx: Context) =
     views.html.base.layout(
       title = trans.boardEditor.txt(),
       moreJs = frag(
         jsModule("editor"),
         embedJsUnsafeLoadThen(
-          s"""const data=${safeJsonValue(bits.jsData(sit, fen, animationDuration))};data.positions=$positionsJson;
+          s"""const data=${safeJsonValue(bits.jsData(sit, fen))};data.positions=$positionsJson;
 LichessEditor(document.getElementById('board-editor'), data);"""
         )
       ),
@@ -31,7 +30,7 @@ LichessEditor(document.getElementById('board-editor'), data);"""
       openGraph = lila.app.ui
         .OpenGraph(
           title = "Chess board editor",
-          url = s"$netBaseUrl${routes.Editor.index().url}",
+          url = s"$netBaseUrl${routes.Editor.index.url}",
           description = "Load opening positions or create your own chess position on a chess board editor"
         )
         .some

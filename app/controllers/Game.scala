@@ -15,6 +15,11 @@ final class Game(
     apiC: => Api
 ) extends LilaController(env) {
 
+  def bookmark(gameId: String) =
+    Auth { implicit ctx => me =>
+      env.bookmark.api.toggle(gameId, me.id)
+    }
+
   def delete(gameId: String) =
     Auth { implicit ctx => me =>
       OptionFuResult(env.game.gameRepo game gameId) { game =>
@@ -42,7 +47,6 @@ final class Game(
           format = if (HTTPRequest acceptsJson req) GameApiV2.Format.JSON else GameApiV2.Format.PGN,
           imported = getBool("imported", req),
           flags = requestPgnFlags(req, extended = true),
-          noDelay = get("key", req).exists(env.noDelaySecretSetting.get().value.contains),
           playerFile = get("players", req)
         )
         env.api.gameApiV2.exportOne(game, config) flatMap { content =>
@@ -117,7 +121,7 @@ final class Game(
         ids = req.body.split(',').view.take(300).toSeq,
         format = GameApiV2.Format byRequest req,
         flags = requestPgnFlags(req, extended = false),
-        perSecond = MaxPerSecond(20),
+        perSecond = MaxPerSecond(30),
         playerFile = get("players", req)
       )
       apiC
@@ -151,7 +155,8 @@ final class Game(
       evals = getBoolOpt("evals", req) | extended,
       opening = getBoolOpt("opening", req) | extended,
       literate = getBoolOpt("literate", req) | false,
-      pgnInJson = getBoolOpt("pgnInJson", req) | false
+      pgnInJson = getBoolOpt("pgnInJson", req) | false,
+      delayMoves = !get("key", req).exists(env.noDelaySecretSetting.get().value.contains)
     )
 
   private[controllers] def gameContentType(config: GameApiV2.Config) =

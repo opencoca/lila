@@ -1,41 +1,60 @@
-import { build as treeBuild, ops as treeOps, path as treePath, TreeWrapper } from 'tree';
-import { ctrl as cevalCtrl, CevalCtrl } from 'ceval';
-import keyboard from './keyboard';
-import { moveTestBuild, MoveTestFn } from './moveTest';
-import mergeSolution from './solution';
-import makePromotion from './promotion';
-import computeAutoShapes from './autoShape';
-import { defined, prop, Prop } from 'common';
-import { storedProp } from 'common/storage';
-import throttle from 'common/throttle';
-import * as xhr from './xhr';
 import * as speech from './speech';
-import { Role, Move, Outcome } from 'chessops/types';
-import { parseSquare, parseUci, makeSquare, makeUci } from 'chessops/util';
-import { parseFen, makeFen } from 'chessops/fen';
-import { makeSanAndPlay } from 'chessops/san';
+import * as xhr from './xhr';
+import computeAutoShapes from './autoShape';
+import keyboard from './keyboard';
+import makePromotion from './promotion';
+import moveTest from './moveTest';
+import PuzzleSession from './session';
+import PuzzleStreak from './streak';
+import throttle from 'common/throttle';
+import { Api as CgApi } from 'chessground/api';
+import { build as treeBuild, ops as treeOps, path as treePath, TreeWrapper } from 'tree';
 import { Chess } from 'chessops/chess';
 import { chessgroundDests, scalachessCharPair } from 'chessops/compat';
 import { Config as CgConfig } from 'chessground/config';
-import { Api as CgApi } from 'chessground/api';
-import { Redraw, Vm, Controller, PuzzleOpts, PuzzleData, PuzzleRound, PuzzleVote, MoveTest } from './interfaces';
+import { ctrl as cevalCtrl, CevalCtrl } from 'ceval';
+import { defer } from 'common/defer';
+import { defined, prop, Prop } from 'common';
+import { makeSanAndPlay } from 'chessops/san';
+import { parseFen, makeFen } from 'chessops/fen';
+import { parseSquare, parseUci, makeSquare, makeUci } from 'chessops/util';
+import { pgnToTree, mergeSolution } from './moveTree';
+import { Redraw, Vm, Controller, PuzzleOpts, PuzzleData, PuzzleResult, MoveTest, ThemeKey } from './interfaces';
+import { Role, Move, Outcome } from 'chessops/types';
+import { storedProp } from 'common/storage';
 
-export default function(opts: PuzzleOpts, redraw: Redraw): Controller {
-
-  let vm: Vm = {} as Vm;
-  var data: PuzzleData, tree: TreeWrapper, ceval: CevalCtrl, moveTest: MoveTestFn;
+export default function (opts: PuzzleOpts, redraw: Redraw): Controller {
+  let vm: Vm = {
+    next: defer<PuzzleData>(),
+  } as Vm;
+  let data: PuzzleData, tree: TreeWrapper, ceval: CevalCtrl;
+  const hasStreak = !!opts.data.streak;
+  const autoNext = storedProp(`puzzle.autoNext${hasStreak ? '.streak' : ''}`, hasStreak);
   const ground = prop<CgApi | undefined>(undefined) as Prop<CgApi>;
   const threatMode = prop(false);
+  const streak = opts.data.streak ? new PuzzleStreak(opts.data) : undefined;
+  if (streak)
+    opts.data = {
+      ...opts.data,
+      ...streak.data.current,
+    };
+  const session = new PuzzleSession(opts.data.theme.key, opts.data.user?.id, hasStreak);
 
   // required by ceval
   vm.showComputer = () => vm.mode === 'view';
   vm.showAutoShapes = () => true;
 
   const throttleSound = (name: string) => throttle(100, () => lichess.sound.play(name));
+  const loadSound = (file: string, volume?: number, delay?: number) => {
+    setTimeout(() => lichess.sound.loadOggOrMp3(file, `${lichess.sound.baseUrl}/${file}`), delay || 1000);
+    return () => lichess.sound.play(file, volume);
+  };
   const sound = {
     move: throttleSound('move'),
     capture: throttleSound('capture'),
-    check: throttleSound('check')
+    check: throttleSound('check'),
+    good: loadSound('lisp/PuzzleStormGood', 0.7, 500),
+    end: loadSound('lisp/PuzzleStormEnd', 1, 1000),
   };
 
   function setPath(path: Tree.Path): void {
@@ -52,33 +71,30 @@ export default function(opts: PuzzleOpts, redraw: Redraw): Controller {
 
   function initiate(fromData: PuzzleData): void {
     data = fromData;
-    tree = treeBuild(treeOps.reconstruct(data.game.treeParts));
-    var initialPath = treePath.fromNodeList(treeOps.mainlineNodeList(tree.root));
-    // play | try | view
+    tree = treeBuild(pgnToTree(data.game.pgn.split(' ')));
+    const initialPath = treePath.fromNodeList(treeOps.mainlineNodeList(tree.root));
     vm.mode = 'play';
-    vm.loading = false;
+    vm.next = defer();
     vm.round = undefined;
-    vm.voted = undefined;
     vm.justPlayed = undefined;
     vm.resultSent = false;
     vm.lastFeedback = 'init';
     vm.initialPath = initialPath;
     vm.initialNode = tree.nodeAtPath(initialPath);
+    vm.pov = vm.initialNode.ply % 2 == 1 ? 'black' : 'white';
 
     setPath(treePath.init(initialPath));
-    setTimeout(function() {
+    setTimeout(() => {
       jump(initialPath);
       redraw();
     }, 500);
 
     // just to delay button display
     vm.canViewSolution = false;
-    setTimeout(function() {
+    setTimeout(() => {
       vm.canViewSolution = true;
       redraw();
-    }, 5000);
-
-    moveTest = moveTestBuild(vm, data.puzzle);
+    }, 4000);
 
     withGround(g => {
       g.setAutoShapes([]);
@@ -87,8 +103,6 @@ export default function(opts: PuzzleOpts, redraw: Redraw): Controller {
     });
 
     instanciateCeval();
-
-    history.replaceState(null, '', '/training/' + data.puzzle.id);
   }
 
   function position(): Chess {
@@ -100,27 +114,31 @@ export default function(opts: PuzzleOpts, redraw: Redraw): Controller {
     const node = vm.node;
     const color: Color = node.ply % 2 === 0 ? 'white' : 'black';
     const dests = chessgroundDests(position());
-    const movable = (vm.mode === 'view' || color === data.puzzle.color) ? {
-      color: dests.size > 0 ? color : undefined,
-      dests
-    } : {
-      color: undefined,
-      dests: new Map(),
-    };
+    const nextNode = vm.node.children[0];
+    const canMove = vm.mode === 'view' || (color === vm.pov && (!nextNode || nextNode.puzzle == 'fail'));
+    const movable = canMove
+      ? {
+          color: dests.size > 0 ? color : undefined,
+          dests,
+        }
+      : {
+          color: undefined,
+          dests: new Map(),
+        };
     const config = {
       fen: node.fen,
-      orientation: data.puzzle.color,
+      orientation: vm.pov,
       turnColor: color,
       movable: movable,
       premovable: {
-        enabled: false
+        enabled: false,
       },
       check: !!node.check,
-      lastMove: uciToLastMove(node.uci)
+      lastMove: uciToLastMove(node.uci),
     };
     if (node.ply >= vm.initialNode.ply) {
-      if (vm.mode !== 'view' && color !== data.puzzle.color) {
-        config.movable.color = data.puzzle.color;
+      if (vm.mode !== 'view' && color !== vm.pov && !nextNode) {
+        config.movable.color = vm.pov;
         config.premovable.enabled = true;
       }
     }
@@ -157,15 +175,18 @@ export default function(opts: PuzzleOpts, redraw: Redraw): Controller {
     move = pos.normalizeMove(move);
     const san = makeSanAndPlay(pos, move);
     const check = pos.isCheck() ? pos.board.kingOf(pos.turn) : undefined;
-    addNode({
-      ply: 2 * (pos.fullmoves - 1) + (pos.turn == 'white' ? 0 : 1),
-      fen: makeFen(pos.toSetup()),
-      id: scalachessCharPair(move),
-      uci: makeUci(move),
-      san,
-      check: defined(check) ? makeSquare(check) : undefined,
-      children: []
-    }, path);
+    addNode(
+      {
+        ply: 2 * (pos.fullmoves - 1) + (pos.turn == 'white' ? 0 : 1),
+        fen: makeFen(pos.toSetup()),
+        id: scalachessCharPair(move),
+        uci: makeUci(move),
+        san,
+        check: defined(check) ? makeSquare(check) : undefined,
+        children: [],
+      },
+      path
+    );
   }
 
   function uciToLastMove(uci: string | undefined): [Key, Key] | undefined {
@@ -176,89 +197,95 @@ export default function(opts: PuzzleOpts, redraw: Redraw): Controller {
   function addNode(node: Tree.Node, path: Tree.Path): void {
     const newPath = tree.addNode(node, path)!;
     jump(newPath);
-    reorderChildren(path);
-    redraw();
     withGround(g => g.playPremove());
 
-    const progress = moveTest();
+    const progress = moveTest(vm, data.puzzle);
     if (progress) applyProgress(progress);
+    reorderChildren(path);
     redraw();
     speech.node(node, false);
   }
 
   function reorderChildren(path: Tree.Path, recursive?: boolean): void {
-    var node = tree.nodeAtPath(path);
-    node.children.sort(function(c1, _) {
-      if (c1.puzzle === 'fail') return 1;
-      if (c1.puzzle === 'retry') return 1;
-      if (c1.puzzle === 'good') return -1;
+    const node = tree.nodeAtPath(path);
+    node.children.sort((c1, _) => {
+      const p = c1.puzzle;
+      if (p == 'fail') return 1;
+      if (p == 'good' || p == 'win') return -1;
       return 0;
     });
-    if (recursive) node.children.forEach(function(child) {
-      reorderChildren(path + child.id, true);
-    });
+    if (recursive) node.children.forEach(child => reorderChildren(path + child.id, true));
   }
 
   function revertUserMove(): void {
-    setTimeout(function() {
+    setTimeout(() => {
       withGround(g => g.cancelPremove());
       userJump(treePath.init(vm.path));
       redraw();
-    }, 500);
+    }, 100);
   }
 
-  function applyProgress(progress: undefined | 'fail' | 'retry' | 'win' | 'good' | MoveTest): void {
+  function applyProgress(progress: undefined | 'fail' | 'win' | MoveTest): void {
     if (progress === 'fail') {
       vm.lastFeedback = 'fail';
       revertUserMove();
       if (vm.mode === 'play') {
-        vm.canViewSolution = true;
-        vm.mode = 'try';
-        sendResult(false);
+        if (streak) {
+          vm.mode = 'view';
+          streak.onComplete(false);
+          setTimeout(viewSolution, 500);
+          sound.end();
+        } else {
+          vm.canViewSolution = true;
+          vm.mode = 'try';
+          sendResult(false);
+        }
       }
-    } else if (progress === 'retry') {
-      vm.lastFeedback = 'retry';
-      revertUserMove();
-    } else if (progress === 'win') {
-      if (vm.mode !== 'view') {
-        if (vm.mode === 'play') sendResult(true);
-        vm.lastFeedback = 'win';
+    } else if (progress == 'win') {
+      if (streak) sound.good();
+      vm.lastFeedback = 'win';
+      if (vm.mode != 'view') {
+        const sent = vm.mode == 'play' ? sendResult(true) : Promise.resolve();
         vm.mode = 'view';
-        withGround(showGround); // to disable premoves
-        startCeval();
+        withGround(showGround);
+        sent.then(_ => (autoNext() ? nextPuzzle() : startCeval()));
       }
-    } else if (progress && typeof progress != 'string') {
+    } else if (progress) {
       vm.lastFeedback = 'good';
       setTimeout(() => {
         const pos = Chess.fromSetup(parseFen(progress.fen).unwrap()).unwrap();
         sendMoveAt(progress.path, pos, progress.move);
-      }, 500);
+      }, opts.pref.animation.duration * (autoNext() ? 1 : 1.5));
     }
   }
 
-  function sendResult(win: boolean): void {
-    if (vm.resultSent) return;
+  function sendResult(win: boolean): Promise<void> {
+    if (vm.resultSent) return Promise.resolve();
     vm.resultSent = true;
-    nbToVoteCall(Math.max(0, parseInt(nbToVoteCall()) - 1));
-    xhr.round(data.puzzle.id, win).then((res: PuzzleRound) => {
-      data.user = res.user;
-      vm.round = res.round;
-      vm.voted = res.voted;
-      redraw();
+    session.complete(data.puzzle.id, win);
+    return xhr.complete(data.puzzle.id, data.theme.key, win, data.replay, streak).then((res: PuzzleResult) => {
+      if (res?.replayComplete && data.replay) return lichess.redirect(`/training/dashboard/${data.replay.days}`);
+      if (res?.next.user && data.user) {
+        data.user.rating = res.next.user.rating;
+        data.user.provisional = res.next.user.provisional;
+        vm.round = res.round;
+        if (res.round?.ratingDiff) session.setRatingDiff(data.puzzle.id, res.round.ratingDiff);
+      }
       if (win) speech.success();
+      vm.next.resolve(res.next);
+      if (streak && win) streak.onComplete(true, res.next);
+      redraw();
     });
   }
 
   function nextPuzzle(): void {
     ceval.stop();
-    vm.loading = true;
-    redraw();
-    xhr.nextPuzzle().then((d: PuzzleData) => {
-      vm.round = null;
-      vm.loading = false;
-      initiate(d);
-      redraw();
-    });
+    vm.next.promise.then(initiate).then(redraw);
+
+    if (!streak && !data.replay) {
+      const path = `/training/${data.theme.key}`;
+      if (location.pathname != path) history.replaceState(null, '', path);
+    }
   }
 
   function instanciateCeval(): void {
@@ -270,16 +297,15 @@ export default function(opts: PuzzleOpts, redraw: Redraw): Controller {
       variant: {
         short: 'Std',
         name: 'Standard',
-        key: 'standard'
+        key: 'standard',
       },
+      standardMaterial: true,
       possible: true,
-      emit: function(ev, work) {
-        tree.updateAt(work.path, function(node) {
+      emit: function (ev, work) {
+        tree.updateAt(work.path, function (node) {
           if (work.threatMode) {
-            if (!node.threat || node.threat.depth <= ev.depth || node.threat.maxDepth < ev.maxDepth)
-              node.threat = ev;
-          } else if (!node.ceval || node.ceval.depth <= ev.depth || node.ceval.maxDepth < ev.maxDepth)
-            node.ceval = ev;
+            if (!node.threat || node.threat.depth <= ev.depth || node.threat.maxDepth < ev.maxDepth) node.threat = ev;
+          } else if (!node.ceval || node.ceval.depth <= ev.depth || node.ceval.maxDepth < ev.maxDepth) node.ceval = ev;
           if (work.path === vm.path) {
             setAutoShapes();
             redraw();
@@ -292,13 +318,15 @@ export default function(opts: PuzzleOpts, redraw: Redraw): Controller {
 
   function setAutoShapes(): void {
     withGround(g => {
-      g.setAutoShapes(computeAutoShapes({
-        vm: vm,
-        ceval: ceval,
-        ground: g,
-        threatMode: threatMode(),
-        nextNodeBest: nextNodeBest()
-      }));
+      g.setAutoShapes(
+        computeAutoShapes({
+          vm: vm,
+          ceval: ceval,
+          ground: g,
+          threatMode: threatMode(),
+          nextNodeBest: nextNodeBest(),
+        })
+      );
     });
   }
 
@@ -310,20 +338,13 @@ export default function(opts: PuzzleOpts, redraw: Redraw): Controller {
     if (ceval.enabled() && canUseCeval()) doStartCeval();
   }
 
-  const doStartCeval = throttle(800, function() {
+  const doStartCeval = throttle(800, function () {
     ceval.start(vm.path, vm.nodeList, threatMode());
   });
 
-  function nextNodeBest() {
-    return treeOps.withMainlineChild(vm.node, function(n) {
-      // return n.eval ? n.eval.pvs[0].moves[0] : null;
-      return n.eval ? n.eval.best : undefined;
-    });
-  }
+  const nextNodeBest = () => treeOps.withMainlineChild(vm.node, n => n.eval?.best);
 
-  function getCeval() {
-    return ceval;
-  }
+  const getCeval = () => ceval;
 
   function toggleCeval(): void {
     ceval.toggle();
@@ -355,7 +376,8 @@ export default function(opts: PuzzleOpts, redraw: Redraw): Controller {
     withGround(showGround);
     if (pathChanged) {
       if (isForwardStep) {
-        if (!vm.node.uci) sound.move(); // initial position
+        if (!vm.node.uci) sound.move();
+        // initial position
         else if (!vm.justPlayed || vm.node.uci.includes(vm.justPlayed)) {
           if (vm.node.san!.includes('x')) sound.capture();
           else sound.move();
@@ -373,53 +395,67 @@ export default function(opts: PuzzleOpts, redraw: Redraw): Controller {
   }
 
   function userJump(path: Tree.Path): void {
+    if (tree.nodeAtPath(path)?.puzzle == 'fail' && vm.mode != 'view') return;
     withGround(g => g.selectSquare(null));
     jump(path);
     speech.node(vm.node, true);
   }
 
   function viewSolution(): void {
-    if (!vm.canViewSolution) return;
     sendResult(false);
     vm.mode = 'view';
-    mergeSolution(vm.initialNode, data.puzzle.branch, data.puzzle.color);
+    mergeSolution(tree, vm.initialPath, data.puzzle.solution, vm.pov);
     reorderChildren(vm.initialPath, true);
 
     // try and play the solution next move
-    var next = vm.node.children[0];
+    const next = vm.node.children[0];
     if (next && next.puzzle === 'good') userJump(vm.path + next.id);
     else {
-      var firstGoodPath = treeOps.takePathWhile(vm.mainline, function(node) {
-        return node.puzzle !== 'good';
-      });
+      const firstGoodPath = treeOps.takePathWhile(vm.mainline, node => node.puzzle != 'good');
       if (firstGoodPath) userJump(firstGoodPath + tree.nodeAtPath(firstGoodPath).children[0].id);
     }
 
     vm.autoScrollRequested = true;
+    vm.voteDisabled = true;
     redraw();
     startCeval();
-  }
-
-  function recentHash(): string {
-    return 'ph' + data.puzzle.id + (data.user ? data.user.recent.reduce(function(h, r) {
-      return h + r[0];
-    }, '') : '');
-  }
-
-  const nbToVoteCall = storedProp('puzzle.vote-call', 3);
-  let thanksUntil: number | undefined;
-
-  const callToVote = () => parseInt(nbToVoteCall()) < 1;
-
-  const vote = throttle(1000, function(v) {
-    if (callToVote()) thanksUntil = Date.now() + 2000;
-    nbToVoteCall(5);
-    vm.voted = v;
-    xhr.vote(data.puzzle.id, v).then((res: PuzzleVote) => {
-      data.puzzle.vote = res[1];
+    setTimeout(() => {
+      vm.voteDisabled = false;
       redraw();
-    });
-  });
+    }, 500);
+  }
+
+  const skip = () => {
+    if (!streak || !streak.data.skip || vm.mode != 'play') return;
+    streak.skip();
+    userJump(treePath.fromNodeList(vm.mainline));
+    const moveIndex = treePath.size(vm.path) - treePath.size(vm.initialPath);
+    const solution = data.puzzle.solution[moveIndex];
+    playUci(solution);
+    playBestMove();
+  };
+
+  const vote = (v: boolean) => {
+    if (!vm.voteDisabled) {
+      xhr.vote(data.puzzle.id, v);
+      nextPuzzle();
+    }
+  };
+
+  const voteTheme = (theme: ThemeKey, v: boolean) => {
+    if (vm.round) {
+      vm.round.themes = vm.round.themes || {};
+      if (v === vm.round.themes[theme]) {
+        delete vm.round.themes[theme];
+        xhr.voteTheme(data.puzzle.id, theme, undefined);
+      } else {
+        if (v || data.puzzle.themes.includes(theme)) vm.round.themes[theme] = v;
+        else delete vm.round.themes[theme];
+        xhr.voteTheme(data.puzzle.id, theme, v);
+      }
+      redraw();
+    }
+  };
 
   initiate(opts.data);
 
@@ -437,17 +473,24 @@ export default function(opts: PuzzleOpts, redraw: Redraw): Controller {
     toggleCeval,
     toggleThreatMode,
     redraw,
-    playBestMove
+    playBestMove,
   });
 
   // If the page loads while being hidden (like when changing settings),
   // chessground is not displayed, and the first move is not fully applied.
   // Make sure chessground is fully shown when the page goes back to being visible.
-  document.addEventListener('visibilitychange', () =>
-    lichess.requestIdleCallback(() => jump(vm.path), 500)
-  );
+  document.addEventListener('visibilitychange', () => lichess.requestIdleCallback(() => jump(vm.path), 500));
 
   speech.setup();
+
+  lichess.pubsub.on('zen', () => {
+    const zen = !$('body').hasClass('zen');
+    $('body').toggleClass('zen', zen);
+    window.dispatchEvent(new Event('resize'));
+    xhr.setZen(zen);
+  });
+  $('body').addClass('playing'); // for zen
+  $('#zentog').on('click', () => lichess.pubsub.emit('zen'));
 
   return {
     vm,
@@ -462,15 +505,14 @@ export default function(opts: PuzzleOpts, redraw: Redraw): Controller {
     userJump,
     viewSolution,
     nextPuzzle,
-    recentHash,
-    callToVote,
-    thanks() {
-      return !!thanksUntil && Date.now() < thanksUntil;
-    },
     vote,
+    voteTheme,
     getCeval,
     pref: opts.pref,
+    difficulty: opts.difficulty,
     trans: lichess.trans(opts.i18n),
+    autoNext,
+    autoNexting: () => vm.lastFeedback == 'win' && autoNext(),
     outcome,
     toggleCeval,
     toggleThreatMode,
@@ -494,6 +536,13 @@ export default function(opts: PuzzleOpts, redraw: Redraw): Controller {
     promotion,
     redraw,
     ongoing: false,
-    playBestMove
+    playBestMove,
+    session,
+    allThemes: opts.themes && {
+      dynamic: opts.themes.dynamic.split(' '),
+      static: new Set(opts.themes.static.split(' ')),
+    },
+    streak,
+    skip,
   };
 }

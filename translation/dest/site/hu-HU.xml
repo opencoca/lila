@@ -9,6 +9,7 @@
   <string name="yourTurn">Te következel</string>
   <string name="aiNameLevelAiLevel">%1$s szint: %2$s</string>
   <string name="level">Szint</string>
+  <string name="strength">Erősség</string>
   <string name="toggleTheChat">Csevegő ki-be</string>
   <string name="toggleSound">Hang ki-be</string>
   <string name="chat">Csevegés</string>
@@ -382,7 +383,6 @@
   <string name="more">Több</string>
   <string name="memberSince">Tagság kezdete</string>
   <string name="lastSeenActive">Utoljára aktív: %s</string>
-  <string name="challengeToPlay">Kihívás</string>
   <string name="player">Játékos</string>
   <string name="list">Lista</string>
   <string name="graph">Grafikon</string>
@@ -447,6 +447,7 @@
   <string name="lastName">Vezetéknév</string>
   <string name="biography">Bemutatkozás</string>
   <string name="country">Ország</string>
+  <string name="thankYou">Köszönjük!</string>
   <string name="socialMediaLinks">Közösségi média</string>
   <string name="inlineNotation">Megjegyzések beszúrása</string>
   <string name="watchLichessTV">Lichess TV</string>
@@ -455,34 +456,7 @@
   <string name="activeToday">Ma aktívak</string>
   <string name="activePlayers">Aktív játékosok</string>
   <string name="bewareTheGameIsRatedButHasNoClock">A játszma értékelt, de nincs időmérés!</string>
-  <string name="yourPuzzleRatingX">Feladvány pontszámod: %s</string>
-  <string name="findTheBestMoveForWhite">Találd meg világos legjobb lépését!</string>
-  <string name="findTheBestMoveForBlack">Találd meg sötét legjobb lépését!</string>
-  <string name="toTrackYourProgress">Kövesd nyomon a fejlődésed:</string>
-  <string name="puzzleId">%s. feladvány</string>
-  <string name="puzzleOfTheDay">Napi feladvány</string>
-  <string name="clickToSolve">Katt a megoldáshoz</string>
-  <string name="goodMove">Jó lépés</string>
-  <string name="butYouCanDoBetter">De jobbat is találhatsz.</string>
-  <string name="bestMove">A legjobb lépés!</string>
-  <string name="keepGoing">Folytasd...</string>
-  <string name="puzzleFailed">Nem sikerült megoldani</string>
-  <string name="butYouCanKeepTrying">De még próbálkozhatsz.</string>
   <string name="success">Sikerült!</string>
-  <string name="wasThisPuzzleAnyGood">Tetszett a feladvány?</string>
-  <string name="pleaseVotePuzzle">Segíts a lichess fejlődésében azzal, hogy szavazol a le-föl nyilakkal:</string>
-  <string name="thankYou">Köszönjük!</string>
-  <string name="ratingX">Pontszám: %s</string>
-  <string name="hidden">rejtett</string>
-  <plurals name="playedXTimes">
-    <item quantity="one">%s beküldött megfejtés</item>
-    <item quantity="other">%s beküldött megfejtés</item>
-  </plurals>
-  <string name="fromGameLink">%s játszmából</string>
-  <string name="continueTraining">Gyakorlás folytatása</string>
-  <string name="retryThisPuzzle">Újabb próba</string>
-  <string name="thisPuzzleIsCorrect">Ez a feladvány helyes és érdekes</string>
-  <string name="thisPuzzleIsWrong">Ez a feladvány hibás vagy unalmas</string>
   <plurals name="nbGamesInPlay">
     <item quantity="one">%s játszma fut</item>
     <item quantity="other">%s játszma fut</item>
@@ -494,6 +468,8 @@
   <string name="tournamentWinners">Verseny győztesek</string>
   <string name="name">Név</string>
   <string name="description">Leírás</string>
+  <string name="descPrivate">Privát leírás</string>
+  <string name="descPrivateHelp">Szöveg, amit csak a csapattagok láthatnak. Kitöltés esetén lecseréli a nyilvános leírást a csapattagok számára.</string>
   <string name="no">Nem</string>
   <string name="yes">Igen</string>
   <string name="help">Segítség</string>
@@ -514,6 +490,7 @@
   <string name="cheat">Csalás</string>
   <string name="insult">Sértegetés</string>
   <string name="troll">Trollkodás</string>
+  <string name="ratingManipulation">Pontszám manipuláció</string>
   <string name="other">Egyéb</string>
   <string name="reportDescriptionHelp">Másold be a játék(ok) linkjét, és mondd el, mi a gond a játékos viselkedésével. Ne csak annyit írj, hogy \"csalt\", hanem próbáld elmondani, miből gondolod ezt. A jelentésedet hamarabb feldolgozzák, ha angolul írod.</string>
   <string name="error.provideOneCheatedGameLink">Kérünk, legalább adj meg linket legalább egy csalt játszmához.</string>
@@ -531,9 +508,12 @@
   <string name="currentPassword">Jelenlegi jelszó</string>
   <string name="newPassword">Új jelszó</string>
   <string name="newPasswordAgain">Új jelszó (ismét)</string>
+  <string name="newPasswordsDontMatch">A megadott jelszavak nem egyeznek</string>
+  <string name="newPasswordStrength">Jelszó erőssége</string>
   <string name="clockInitialTime">Kiindulási idő</string>
   <string name="clockIncrement">Növekmény</string>
   <string name="privacy">Adatvédelem</string>
+  <string name="privacyPolicy">Adatvédelmi irányelvek</string>
   <string name="letOtherPlayersFollowYou">Mások követhetnek téged</string>
   <string name="letOtherPlayersChallengeYou">Mások kihívhatnak egy játszmára</string>
   <string name="letOtherPlayersInviteYouToStudy">Mások meghívhatnak játszma tanulmányozásra</string>
@@ -602,6 +582,7 @@
   <string name="error.email_unique">A megadott e-mail cím már használatban van</string>
   <string name="error.email_different">Már ez az e-mail címed</string>
   <string name="ifRatingIsPlusMinusX">Ha a pontszám ± %s</string>
+  <string name="onlyExistingConversations">Csak megkezdett csevegések</string>
   <string name="onlyFriends">Csak ismerősőktől</string>
   <string name="menu">Menü</string>
   <string name="castling">Sáncolás</string>
@@ -679,7 +660,8 @@
   <string name="ifYouDoNotSeeTheEmailCheckOtherPlaces">Ha nem látod az email-t, ellenőrizd, hogy nincs-e a szemetes, a spam vagy a közösségi mappában, vagy egyéb mappákban.</string>
   <string name="weHaveSentYouAnEmailTo">Küldtünk egy üzenetet a %s email címre. A jelszavad megváltoztatásához kattints az üzenetben lévő linkre.</string>
   <string name="byRegisteringYouAgreeToBeBoundByOur">A regisztrációval elfogadod a %s-t</string>
-  <string name="networkLagBetweenYouAndLichess">Hálózati késleltetés a számítógéped és a lichess között</string>
+  <string name="readAboutOur">Itt olvashatók az %s.</string>
+  <string name="networkLagBetweenYouAndLichess">Hálózati késleltetés a számítógéped és a Lichess között</string>
   <string name="timeToProcessAMoveOnLichessServer">Az az idő, amíg a lichess szerver egy lépést feldolgoz</string>
   <string name="downloadAnnotated">Letöltés elemzéssel</string>
   <string name="downloadRaw">Letöltés elemzés nélkül</string>
@@ -757,7 +739,6 @@
   <string name="error.unknown">Hiba</string>
   <string name="custom">Egyéni</string>
   <string name="notifications">Értesítések</string>
-  <string name="challenges">Kihívások</string>
   <string name="perfRatingX">Pontszám: %s</string>
   <plurals name="nbSecondsToPlayTheFirstMove">
     <item quantity="one">%s másodperc a kezdőlépés megtételére</item>
@@ -804,12 +785,6 @@
   <string name="opening">Megnyitás</string>
   <string name="middlegame">Középjáték</string>
   <string name="endgame">Végjáték</string>
-  <string name="registerToSendChallenges">A kihíváshoz regisztráció szükséges.</string>
-  <string name="youCannotChallengeX">%s nem kihívható.</string>
-  <string name="xDoesNotAcceptChallenges">%s nem fogad kihívást.</string>
-  <string name="yourXRatingIsTooFarFromY">A pontszámod túl messze van tőle: %2$s (%1$s).</string>
-  <string name="cannotChallengeDueToProvisionalXRating">Nem kihívható az ideiglenes %s pontszám miatt.</string>
-  <string name="xOnlyAcceptsChallengesFromFriends">%s csak barátoktól fogad kihívást.</string>
   <string name="conditionalPremoves">Feltételes előre megadott lépések</string>
   <string name="addCurrentVariation">Változat hozzáadása</string>
   <string name="playVariationToCreateConditionalPremoves">Egy változat megjátszásával, hozzáadható feltételes előre megadott lépés</string>
@@ -863,4 +838,22 @@
   <string name="youCannotPostYetPlaySomeGames">Még nem írhatsz a fórumokba. Játssz néhány partit!</string>
   <string name="subscribe">Feliratkozás</string>
   <string name="unsubscribe">Leiratkozás</string>
+  <string name="mentionedYouInX"> megemlített itt: \"%1$s\".</string>
+  <string name="xMentionedYouInY"> %1$s megemlített itt: \"%2$s\".</string>
+  <string name="invitedYouToX" comment="invitedYouToX&#10;&#10;This appears in a notification when the user is invited to join a study. %1$s is the name of the study."> meghívott ide: \"%1$s\".</string>
+  <string name="xInvitedYouToY" comment="xInvitedYouToY&#10;&#10;This appears in a notification when the user is invited to join a study. %1$s is the user that invited you. %2$s is the name of the study.">%1$s meghívott ide: \"%2$s\".</string>
+  <string name="youAreNowPartOfTeam">Mostmár a csapat tagja vagy.</string>
+  <string name="youHaveJoinedTeamX">Csatlakoztál ide: \"%1$s\".</string>
+  <string name="someoneYouReportedWasBanned">Letiltottak valakit, akit korábban jelentettél</string>
+  <string name="congratsYouWon">Gratulálunk, nyertél!</string>
+  <string name="gameVsX" comment="gameVsX&#10;&#10;%1$s is the name of the opponent in a game.&#10;&#10;Examples of where this string appears:&#10;- Notification of a game that has ended (&quot;You won/Defeat/Draw [in] Game against ChessMaster99&quot;&#10;- Notification that time has almost elapsed in a correspondence game (&quot;Time is almost up [in] Game against ChessMaster99&quot;">Játszma %1$s ellen</string>
+  <string name="resVsX">%1$s %2$s ellen</string>
+  <string name="youJustBecamePatron">Éppen Lichess Patronná váltál.</string>
+  <string name="patronAccountExpired">Lejárt a Patron hozzájárulás</string>
+  <string name="pleaseReconsiderRenewIt">Kérjük vedd fontolóra a megújítását!</string>
+  <string name="someoneReviewedYourCoachProfile">Valaki értékelte az oktatói profilod.</string>
+  <string name="newPendingReview">Új függőben lévő értékelés</string>
+  <string name="lostAgainstTOSViolator">Vesztettél valaki ellen, aki megszegte a Lichess szabályait</string>
+  <string name="refundXpointsTimeControlY" comment="refundXpointsTimeControlY&#10;&#10;%1$s is the number of points refunded&#10;%2$s is the type of the rating - bullet, blitz and classical games have separate ratings.&#10;&#10;Ratings are refunded when Lichess detects that a player has lost points due to another player's cheating.">Visszatérítve: %1$s %2$s értékpont.</string>
+  <string name="timeAlmostUp">Hamarosan lejár az idő!</string>
 </resources>

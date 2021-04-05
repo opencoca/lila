@@ -20,7 +20,7 @@ final class Env(
     captcher: lila.hub.actors.Captcher,
     userRepo: UserRepo,
     authenticator: Authenticator,
-    slack: lila.slack.SlackApi,
+    slack: lila.irc.SlackApi,
     noteApi: lila.user.NoteApi,
     cacheApi: lila.memo.CacheApi,
     settingStore: lila.memo.SettingStore.Builder,
@@ -56,9 +56,9 @@ final class Env(
 
   lazy val geoIP: GeoIP = wire[GeoIP]
 
-  lazy val userSpy = wire[UserSpyApi]
+  lazy val userLogins = wire[UserLoginsApi]
 
-  lazy val store = new Store(db(config.collection.security), cacheApi, net.ip)
+  lazy val store = new Store(db(config.collection.security), cacheApi)
 
   lazy val ip2proxy: Ip2Proxy =
     if (config.ip2Proxy.enabled) {
@@ -169,7 +169,12 @@ final class Env(
 
   def cli = wire[Cli]
 
-  Bus.subscribeFun("fishnet") { case lila.hub.actorApi.fishnet.NewKey(userId, key) =>
-    automaticEmail.onFishnetKey(userId, key).unit
-  }
+  lila.common.Bus.subscribeFuns(
+    "fishnet" -> { case lila.hub.actorApi.fishnet.NewKey(userId, key) =>
+      automaticEmail.onFishnetKey(userId, key).unit
+    },
+    "gdprErase" -> { case lila.user.User.GDPRErase(user) =>
+      store.definitelyEraseAllUserInfo(user).unit
+    }
+  )
 }

@@ -1,24 +1,43 @@
-import { PuzzleRound, PuzzleVote, PuzzleData } from './interfaces';
 import * as xhr from 'common/xhr';
+import PuzzleStreak from './streak';
+import throttle from 'common/throttle';
+import { defined } from 'common';
+import { PuzzleReplay, PuzzleResult, ThemeKey } from './interfaces';
 
-export function round(puzzleId: number, win: boolean): Promise<PuzzleRound> {
-  return xhr.json(`/training/${puzzleId}/round2`, {
+export function complete(
+  puzzleId: string,
+  theme: ThemeKey,
+  win: boolean,
+  replay?: PuzzleReplay,
+  streak?: PuzzleStreak
+): Promise<PuzzleResult | undefined> {
+  return xhr.json(`/training/complete/${theme}/${puzzleId}`, {
     method: 'POST',
-    body: xhr.form({ win: win ? 1 : 0 }),
-    headers: { ...xhr.xhrHeader }
+    body: xhr.form({
+      win,
+      ...(replay ? { replayDays: replay.days } : {}),
+      ...(streak ? { streakId: streak.nextId(), streakScore: streak.data.index } : {}),
+    }),
   });
 }
 
-export function vote(puzzleId: number, v: boolean): Promise<PuzzleVote> {
+export function vote(puzzleId: string, vote: boolean): Promise<void> {
   return xhr.json(`/training/${puzzleId}/vote`, {
     method: 'POST',
-    body: xhr.form({ vote: v ? 1 : 0 })
+    body: xhr.form({ vote }),
   });
 }
 
-// do NOT set mobile API headers here
-// they trigger a compat layer
-export const nextPuzzle = (): Promise<PuzzleData> =>
-  xhr.json('/training/new', {
-    headers: { ...xhr.xhrHeader }
+export function voteTheme(puzzleId: string, theme: ThemeKey, vote: boolean | undefined): Promise<void> {
+  return xhr.json(`/training/${puzzleId}/vote/${theme}`, {
+    method: 'POST',
+    body: defined(vote) ? xhr.form({ vote }) : undefined,
   });
+}
+
+export const setZen = throttle(1000, zen =>
+  xhr.text('/pref/zen', {
+    method: 'post',
+    body: xhr.form({ zen: zen ? 1 : 0 }),
+  })
+);

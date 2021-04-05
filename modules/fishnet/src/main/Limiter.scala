@@ -5,6 +5,7 @@ import scala.concurrent.duration._
 
 import lila.common.IpAddress
 import lila.db.dsl._
+import lila.user.User
 
 final private class Limiter(
     analysisColl: Coll,
@@ -18,7 +19,7 @@ final private class Limiter(
     }
 
   private val RequestLimitPerIP = new lila.memo.RateLimit[IpAddress](
-    credits = 50,
+    credits = 60,
     duration = 20 hours,
     key = "request_analysis.ip"
   )
@@ -36,8 +37,8 @@ final private class Limiter(
       case _ => fuFalse
     }
 
-  private val maxPerDay  = 25
-  private val maxPerWeek = 100
+  private val maxPerDay  = 30
+  private val maxPerWeek = 150
 
   private def perDayCheck(sender: Work.Sender) =
     sender match {
@@ -46,7 +47,7 @@ final private class Limiter(
         def perUser =
           requesterApi.countTodayAndThisWeek(userId) map { case (daily, weekly) =>
             weekly < maxPerWeek &&
-              daily < (if (weekly < maxPerWeek / 2) maxPerDay else maxPerDay / 2)
+              daily < (if (weekly < maxPerWeek * 2 / 3) maxPerDay else maxPerDay * 2 / 3)
           }
         ip.fold(perUser) { ipAddress =>
           RequestLimitPerIP(ipAddress, cost = 1)(perUser)(fuccess(false))

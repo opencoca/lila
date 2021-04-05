@@ -8,6 +8,7 @@ import lila.app.templating.Environment._
 import lila.app.ui.ScalatagsTemplate._
 import lila.common.String.html.safeJsonValue
 import lila.common.{ ContentSecurityPolicy, Nonce }
+import lila.common.base.StringUtils.escapeHtmlRaw
 
 object layout {
 
@@ -72,8 +73,9 @@ object layout {
       )
   }
   private def blindModeForm(implicit ctx: Context) =
-    raw(s"""<form id="blind-mode" action="${routes.Main
-      .toggleBlindMode()}" method="POST"><input type="hidden" name="enable" value="${if (ctx.blind)
+    raw(s"""<form id="blind-mode" action="${routes.Main.toggleBlindMode}" method="POST"><input type="hidden" name="enable" value="${if (
+      ctx.blind
+    )
       0
     else
       1}"><input type="hidden" name="redirect" value="${ctx.req.path}"><button type="submit">Accessibility: ${if (
@@ -83,14 +85,15 @@ object layout {
     else "Enable"} blind mode</button></form>""")
   private val zenToggle = raw("""<a data-icon="E" id="zentog" class="text fbt active">ZEN MODE</a>""")
   private def dasher(me: lila.user.User) =
-    raw(
-      s"""<div class="dasher"><a id="user_tag" class="toggle link">${me.username}</a><div id="dasher_app" class="dropdown"></div></div>"""
+    div(cls := "dasher")(
+      a(id := "user_tag", cls := "toggle link", href := routes.Auth.logoutGet)(me.username),
+      div(id := "dasher_app", cls := "dropdown")
     )
 
   private def allNotifications(implicit ctx: Context) =
     spaceless(s"""<div>
   <a id="challenge-toggle" class="toggle link">
-    <span title="${trans.challenges
+    <span title="${trans.challenge.challenges
       .txt()}" class="data-count" data-count="${ctx.nbChallenges}" data-icon="U"></span>
   </a>
   <div id="challenge-app" class="dropdown"></div>
@@ -110,7 +113,7 @@ object layout {
   </a>
   <div id="dasher_app" class="dropdown" data-playing="$playing"></div>
 </div>
-<a href="${routes.Auth.login()}?referrer=${ctx.req.path}" class="signin button button-empty">${trans.signIn
+<a href="${routes.Auth.login}?referrer=${ctx.req.path}" class="signin button button-empty">${trans.signIn
       .txt()}</a>""")
 
   private val clinputLink = a(cls := "link")(span(dataIcon := "y"))
@@ -125,6 +128,10 @@ object layout {
         placeholder := trans.search.search.txt()
       )
     )
+
+  private def current2dTheme(implicit ctx: Context) =
+    if (ctx.pref.is3d && ctx.pref.theme == "horsey") lila.pref.Theme.default
+    else ctx.currentTheme
 
   private def botImage =
     img(
@@ -216,14 +223,15 @@ object layout {
           noTranslate,
           openGraph.map(_.frags),
           link(
-            href := routes.Blog.atom(),
+            href := routes.Blog.atom,
             tpe := "application/atom+xml",
             rel := "alternate",
             st.title := trans.blog.txt()
           ),
           ctx.currentBg == "transp" option ctx.pref.bgImgOrDefault map { img =>
             raw(
-              s"""<style id="bg-data">body.transp::before{background-image:url('$img');}</style>"""
+              s"""<style id="bg-data">body.transp::before{background-image:url("${escapeHtmlRaw(img)
+                .replace("&amp;", "&")}");}</style>"""
             )
           },
           fontPreload,
@@ -232,14 +240,14 @@ object layout {
         ),
         st.body(
           cls := List(
-            s"${ctx.currentBg} ${ctx.currentTheme.cssClass} ${ctx.currentTheme3d.cssClass} ${ctx.currentPieceSet3d.toString} coords-${ctx.pref.coordsClass}" -> true,
-            "dark-board"                                                                                                                                     -> (ctx.pref.bg == lila.pref.Pref.Bg.DARKBOARD),
-            "piece-letter"                                                                                                                                   -> ctx.pref.pieceNotationIsLetter,
-            "zen"                                                                                                                                            -> ctx.pref.isZen,
-            "blind-mode"                                                                                                                                     -> ctx.blind,
-            "kid"                                                                                                                                            -> ctx.kid,
-            "mobile"                                                                                                                                         -> ctx.isMobileBrowser,
-            "playing fixed-scroll"                                                                                                                           -> playing
+            s"${ctx.currentBg} ${current2dTheme.cssClass} ${ctx.currentTheme3d.cssClass} ${ctx.currentPieceSet3d.toString} coords-${ctx.pref.coordsClass}" -> true,
+            "dark-board"                                                                                                                                   -> (ctx.pref.bg == lila.pref.Pref.Bg.DARKBOARD),
+            "piece-letter"                                                                                                                                 -> ctx.pref.pieceNotationIsLetter,
+            "zen"                                                                                                                                          -> ctx.pref.isZen,
+            "blind-mode"                                                                                                                                   -> ctx.blind,
+            "kid"                                                                                                                                          -> ctx.kid,
+            "mobile"                                                                                                                                       -> ctx.isMobileBrowser,
+            "playing fixed-scroll"                                                                                                                         -> playing
           ),
           dataDev := (!netConfig.minifiedAssets).option("true"),
           dataVapid := vapidPublicKey,
@@ -271,7 +279,7 @@ object layout {
               "is3d"    -> ctx.pref.is3d
             )
           )(body),
-          ctx.isAuth option div(
+          ctx.me.exists(_.enabled) option div(
             id := "friend_box",
             dataI18n := safeJsonValue(i18nJsObject(i18nKeys))
           )(
@@ -306,7 +314,7 @@ object layout {
                 "report-score--low"                        -> (score <= mid)
               ),
               title := "Moderation",
-              href := routes.Report.list(),
+              href := routes.Report.list,
               dataCount := score,
               dataIcon := ""
             )
@@ -317,7 +325,7 @@ object layout {
       ctx.teamNbRequests > 0 option
         a(
           cls := "link data-count link-center",
-          href := routes.Team.requests(),
+          href := routes.Team.requests,
           dataCount := ctx.teamNbRequests,
           dataIcon := "f",
           title := trans.team.teams.txt()
@@ -326,7 +334,7 @@ object layout {
     def apply(playing: Boolean)(implicit ctx: Context) =
       header(id := "top")(
         div(cls := "site-title-nav")(
-          topnavToggle,
+          !ctx.isAppealUser option topnavToggle,
           h1(cls := "site-title")(
             if (ctx.kid) span(title := trans.kidMode.txt(), cls := "kiddo")(":)")
             else ctx.isBot option botImage,
@@ -336,15 +344,20 @@ object layout {
             )
           ),
           ctx.blind option h2("Navigation"),
-          topnav()
+          !ctx.isAppealUser option topnav()
         ),
         div(cls := "site-buttons")(
-          clinput,
+          !ctx.isAppealUser option clinput,
           reports,
           teamRequests,
-          ctx.me map { me =>
-            frag(allNotifications, dasher(me))
-          } getOrElse { !ctx.pageData.error option anonDasher(playing) }
+          if (ctx.isAppealUser)
+            postForm(action := routes.Auth.logout)(
+              submitButton(cls := "button button-red link")(trans.logOut())
+            )
+          else
+            ctx.me map { me =>
+              frag(allNotifications, dasher(me))
+            } getOrElse { !ctx.pageData.error option anonDasher(playing) }
         )
       )
   }

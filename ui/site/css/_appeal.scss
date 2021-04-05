@@ -15,7 +15,7 @@
 
       content: '';
       font-size: 2em;
-      margin-right: .4em;
+      margin-right: 0.4em;
     }
   }
 
@@ -51,5 +51,12 @@
 
   .appeal-presets {
     margin-right: 1em;
+  }
+
+  &__rules {
+    @extend %box-radius;
+    margin-top: 3em;
+    padding: 2em 3em;
+    background: $c-bg-zebra;
   }
 }

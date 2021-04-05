@@ -72,6 +72,9 @@ final class UserRepo(val coll: Coll)(implicit ec: scala.concurrent.ExecutionCont
       } yield xx -> yy
     }
 
+  def namePair(x: ID, y: ID): Fu[Option[(User, User)]] =
+    pair(normalize(x), normalize(y))
+
   def byOrderedIds(ids: Seq[ID], readPreference: ReadPreference): Fu[List[User]] =
     coll.byOrderedIds[User, User.ID](ids, readPreference = readPreference)(_.id)
 
@@ -89,7 +92,13 @@ final class UserRepo(val coll: Coll)(implicit ec: scala.concurrent.ExecutionCont
 
   def named(username: String): Fu[Option[User]] = coll.byId[User](normalize(username))
 
-  def nameds(usernames: List[String]): Fu[List[User]] = coll.byIds[User](usernames.map(normalize))
+  def enabledNameds(usernames: List[String]): Fu[List[User]] =
+    coll
+      .find($inIds(usernames map normalize) ++ enabledSelect)
+      .cursor[User](ReadPreference.secondaryPreferred)
+      .list()
+
+  def enabledNamed(username: String): Fu[Option[User]] = enabledById(normalize(username))
 
   // expensive, send to secondary
   def byIdsSortRatingNoBot(ids: Iterable[ID], nb: Int): Fu[List[User]] =
@@ -202,6 +211,17 @@ final class UserRepo(val coll: Coll)(implicit ec: scala.concurrent.ExecutionCont
       )
       .void
 
+  private val incStormRuns = $inc("perfs.storm.runs" -> 1)
+  def addStormRun(userId: User.ID, newHighScore: Option[Int]): Funit =
+    coll.update
+      .one(
+        $id(userId),
+        newHighScore.fold(incStormRuns) { score =>
+          incStormRuns ++ $set("perfs.storm.score" -> score)
+        }
+      )
+      .void
+
   def setProfile(id: ID, profile: Profile): Funit =
     coll.update
       .one(
@@ -228,9 +248,6 @@ final class UserRepo(val coll: Coll)(implicit ec: scala.concurrent.ExecutionCont
   def removeTitle(id: ID): Funit =
     coll.unsetField($id(id), F.title).void
 
-  def setPlayTime(id: ID, playTime: User.PlayTime): Funit =
-    coll.update.one($id(id), $set(F.playTime -> User.playTimeHandler.writeTry(playTime).get)).void
-
   def getPlayTime(id: ID): Fu[Option[User.PlayTime]] =
     coll.primitiveOne[User.PlayTime]($id(id), F.playTime)
 
@@ -238,9 +255,14 @@ final class UserRepo(val coll: Coll)(implicit ec: scala.concurrent.ExecutionCont
   val disabledSelect = $doc(F.enabled -> false)
   def markSelect(mark: UserMark)(v: Boolean): Bdoc =
     if (v) $doc(F.marks -> mark.key)
-    else F.marks $ne (mark.key)
+    else F.marks $ne mark.key
   def engineSelect = markSelect(UserMark.Engine) _
   def trollSelect  = markSelect(UserMark.Troll) _
+  val lameOrTroll = $or(
+    $doc(F.marks -> UserMark.Engine.key),
+    $doc(F.marks -> UserMark.Boost.key),
+    $doc(F.marks -> UserMark.Troll.key)
+  )
   def stablePerfSelect(perf: String) =
     $doc(s"perfs.$perf.gl.d" -> $lt(lila.rating.Glicko.provisionalDeviation))
   val patronSelect = $doc(s"${F.plan}.active" -> true)
@@ -580,6 +602,9 @@ final class UserRepo(val coll: Coll)(implicit ec: scala.concurrent.ExecutionCont
   def countEngines(userIds: List[User.ID]): Fu[Int] =
     coll.secondaryPreferred.countSel($inIds(userIds) ++ engineSelect(true))
 
+  def countLameOrTroll(userIds: List[User.ID]): Fu[Int] =
+    coll.secondaryPreferred.countSel($inIds(userIds) ++ lameOrTroll)
+
   def containsEngine(userIds: List[User.ID]): Fu[Boolean] =
     coll.exists($inIds(userIds) ++ engineSelect(true))
 
@@ -612,19 +637,19 @@ final class UserRepo(val coll: Coll)(implicit ec: scala.concurrent.ExecutionCont
     coll.update
       .one(
         $id(user.id),
-        $unset(F.profile) ++ $set(
-          "enabled"  -> false,
-          "erasedAt" -> DateTime.now
+        $unset(F.profile, F.email, F.verbatimEmail, F.prevEmail, F.blind) ++ $set(
+          F.enabled  -> false,
+          F.erasedAt -> DateTime.now
         )
       )
       .void
 
   def isErased(user: User): Fu[User.Erased] =
     user.disabled ?? {
-      coll.exists($id(user.id) ++ $doc("erasedAt" $exists true))
+      coll.exists($id(user.id) ++ $doc(F.erasedAt $exists true))
     } map User.Erased.apply
 
-  def byIdNotErased(id: ID): Fu[Option[User]] = coll.one[User]($id(id) ++ $doc("erasedAt" $exists false))
+  def byIdNotErased(id: ID): Fu[Option[User]] = coll.one[User]($id(id) ++ $doc(F.erasedAt $exists false))
 
   def filterClosedOrInactiveIds(since: DateTime)(ids: Iterable[ID]): Fu[List[ID]] =
     coll.distinctEasy[ID, List](
@@ -664,7 +689,7 @@ final class UserRepo(val coll: Coll)(implicit ec: scala.concurrent.ExecutionCont
     ) ++ {
       (email.value != normalizedEmail.value) ?? $doc(F.verbatimEmail -> email)
     } ++ {
-      if (blind) $doc("blind" -> true) else $empty
+      if (blind) $doc(F.blind -> true) else $empty
     }
   }
 }

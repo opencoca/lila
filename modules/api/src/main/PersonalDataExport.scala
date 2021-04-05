@@ -66,7 +66,7 @@ final class PersonalDataExport(
       List(
         textTitle(s"${sessions.size} Connections"),
         sessions.map { s =>
-          s"${s.ip} ${s.date.map(textDate)}\n${s.ua}"
+          s"${s.ip} ${s.date.??(textDate)}\n${s.ua}"
         } mkString "\n\n"
       )
 
@@ -78,11 +78,11 @@ final class PersonalDataExport(
         } mkString bigSep
       )
 
-    def privateMessages(msgs: Seq[(User.ID, String, DateTime)]) =
+    def privateMessages(msgs: Seq[(String, DateTime)]) =
       List(
         textTitle(s"${msgs.size} Direct messages"),
-        msgs.map { case (to, text, date) =>
-          s"$to ${textDate(date)}\n$text"
+        msgs.map { case (text, date) =>
+          s"${textDate(date)}\n$text"
         } mkString bigSep
       )
 

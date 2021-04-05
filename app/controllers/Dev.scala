@@ -13,10 +13,9 @@ final class Dev(env: Env) extends LilaController(env) {
     env.irwin.irwinThresholdsSetting,
     env.explorer.indexFlowSetting,
     env.report.scoreThresholdsSetting,
-    env.report.slackScoreThresholdSetting,
+    env.report.discordScoreThresholdSetting,
     env.streamer.homepageMaxSetting,
     env.streamer.alwaysFeaturedSetting,
-    env.streamer.twitchCredentialsSetting,
     env.rating.ratingFactorsSetting,
     env.plan.donationGoalSetting,
     env.apiTimelineSetting,
@@ -38,7 +37,7 @@ final class Dev(env: Env) extends LilaController(env) {
           .bindFromRequest()
           .fold(
             _ => BadRequest(html.dev.settings(settingsList)).fuccess,
-            v => setting.setString(v.toString) inject Redirect(routes.Dev.settings())
+            v => setting.setString(v.toString) inject Redirect(routes.Dev.settings)
           )
       }
     }

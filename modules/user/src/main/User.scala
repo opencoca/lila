@@ -6,6 +6,7 @@ import scala.concurrent.duration._
 
 import lila.common.{ EmailAddress, LightUser, NormalizedEmailAddress }
 import lila.rating.{ Perf, PerfType }
+import lila.hub.actorApi.user.{ KidId, NonKidId }
 
 case class User(
     id: String,
@@ -36,7 +37,7 @@ case class User(
   override def hashCode: Int = id.hashCode
 
   override def toString =
-    s"User $username(${perfs.bestRating}) games:${count.game}${marks.troll ?? " troll"}${marks.engine ?? " engine"}"
+    s"User $username(${perfs.bestRating}) games:${count.game}${marks.troll ?? " troll"}${marks.engine ?? " engine"}${!enabled ?? " closed"}"
 
   def light = LightUser(id = id, name = username, title = title.map(_.value), isPatron = isPatron)
 
@@ -78,6 +79,10 @@ case class User(
   def lameOrTroll      = lame || marks.troll
   def lameOrAlt        = lame || marks.alt
   def lameOrTrollOrAlt = lameOrTroll || marks.alt
+
+  def canBeFeatured = hasTitle && !lameOrTroll
+
+  def canFullyLogin = enabled || !lameOrTrollOrAlt
 
   def withMarks(f: UserMarks => UserMarks) = copy(marks = f(marks))
 
@@ -155,10 +160,10 @@ object User {
     case object InvalidTotpToken          extends Result(none)
   }
 
-  val anonymous              = "Anonymous"
-  val lichessId              = "lichess"
-  val broadcasterId          = "broadcaster"
-  def isOfficial(userId: ID) = userId == lichessId || userId == broadcasterId
+  val anonymous                    = "Anonymous"
+  val lichessId                    = "lichess"
+  val broadcasterId                = "broadcaster"
+  def isOfficial(username: String) = normalize(username) == lichessId || normalize(username) == broadcasterId
 
   val seenRecently = 2.minutes
 
@@ -199,8 +204,11 @@ object User {
     def isApiHog               = roles.exists(_ contains "ROLE_API_HOG")
     def isDaysOld(days: Int)   = createdAt isBefore DateTime.now.minusDays(days)
     def isHoursOld(hours: Int) = createdAt isBefore DateTime.now.minusHours(hours)
+    def kidId                  = if (isKid) KidId(id) else NonKidId(id)
   }
-  case class Contacts(orig: Contact, dest: Contact)
+  case class Contacts(orig: Contact, dest: Contact) {
+    def hasKid = orig.isKid || dest.isKid
+  }
 
   case class PlayTime(total: Int, tv: Int) {
     import org.joda.time.Period
@@ -222,6 +230,8 @@ object User {
   def couldBeUsername(str: User.ID) = historicalUsernameRegex.matches(str)
 
   def normalize(username: String) = username.toLowerCase
+
+  def validateId(name: String): Option[User.ID] = couldBeUsername(name) option normalize(name)
 
   object BSONFields {
     val id                    = "_id"
@@ -252,7 +262,11 @@ object User {
     val totpSecret            = "totp"
     val changedCase           = "changedCase"
     val marks                 = "marks"
+    val erasedAt              = "erasedAt"
+    val blind                 = "blind"
   }
+
+  def withFields[A](f: BSONFields.type => A): A = f(BSONFields)
 
   import lila.db.BSON
   import lila.db.dsl._

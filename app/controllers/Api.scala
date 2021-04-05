@@ -27,13 +27,7 @@ final class Api(
     Json.obj(
       "api" -> Json.obj(
         "current" -> api.currentVersion.value,
-        "olds" -> api.oldVersions.map { old =>
-          Json.obj(
-            "version"       -> old.version.value,
-            "deprecatedAt"  -> old.deprecatedAt,
-            "unsupportedAt" -> old.unsupportedAt
-          )
-        }
+        "olds"    -> Json.arr()
       )
     )
   }
@@ -41,7 +35,7 @@ final class Api(
   val status = Action { req =>
     val appVersion  = get("v", req)
     val mustUpgrade = appVersion exists lila.api.Mobile.AppVersion.mustUpgrade
-    Ok(apiStatusJson.add("mustUpgrade", mustUpgrade)) as JSON
+    JsonOk(apiStatusJson.add("mustUpgrade", mustUpgrade))
   }
 
   def index =
@@ -64,12 +58,12 @@ final class Api(
 
   def usersByIds =
     Action.async(parse.tolerantText) { req =>
-      val usernames = req.body.split(',').take(300).toList
+      val usernames = req.body.replace("\n", "").split(',').take(300).map(_.trim).toList
       val ip        = HTTPRequest ipAddress req
       val cost      = usernames.size / 4
       UsersRateLimitPerIP(ip, cost = cost) {
         lila.mon.api.users.increment(cost.toLong)
-        env.user.repo nameds usernames map {
+        env.user.repo enabledNameds usernames map {
           _.map { env.user.jsonView(_, none) }
         } map toApiResult map toHttp
       }(rateLimitedFu)
@@ -251,7 +245,7 @@ final class Api(
           val nb = getInt("nb", req) | Int.MaxValue
           jsonStream {
             env.tournament.api
-              .resultStream(tour, MaxPerSecond(50), nb)
+              .resultStream(tour, MaxPerSecond(40), nb)
               .map(playerResultWrites.writes)
           }.fuccess
         }
@@ -262,7 +256,7 @@ final class Api(
     Action.async {
       env.tournament.tournamentRepo byId id flatMap {
         _ ?? { tour =>
-          env.tournament.jsonView.getTeamStanding(tour) map { arr =>
+          env.tournament.jsonView.apiTeamStanding(tour) map { arr =>
             JsonOk(
               Json.obj(
                 "id"    -> tour.id,
@@ -407,7 +401,7 @@ final class Api(
       case Limited        => tooManyRequests
       case NoData         => NotFound
       case Custom(result) => result
-      case Data(json)     => Ok(json) as JSON
+      case Data(json)     => JsonOk(json)
     }
 
   def jsonStream(makeSource: => Source[JsValue, _])(implicit req: RequestHeader): Result =

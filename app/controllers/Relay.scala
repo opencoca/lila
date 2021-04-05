@@ -29,7 +29,7 @@ final class Relay(
 
   def form =
     Auth { implicit ctx => _ =>
-      NoLame {
+      NoLameOrBot {
         Ok(html.relay.form.create(env.relay.forms.create)).fuccess
       }
     }
@@ -38,26 +38,26 @@ final class Relay(
     AuthOrScopedBody(_.Study.Write)(
       auth = implicit ctx =>
         me =>
-          env.relay.forms.create
-            .bindFromRequest()(ctx.body)
-            .fold(
-              err => BadRequest(html.relay.form.create(err)).fuccess,
-              setup =>
-                env.relay.api.create(setup, me) map { relay =>
-                  Redirect(showRoute(relay))
-                }
-            ),
+          NoLameOrBot {
+            env.relay.forms.create
+              .bindFromRequest()(ctx.body, formBinding)
+              .fold(
+                err => BadRequest(html.relay.form.create(err)).fuccess,
+                setup =>
+                  env.relay.api.create(setup, me) map { relay =>
+                    Redirect(showRoute(relay))
+                  }
+              )
+          },
       scoped = req =>
         me =>
-          env.relay.forms.create
-            .bindFromRequest()(req)
-            .fold(
-              err => BadRequest(apiFormError(err)).fuccess,
-              setup =>
-                env.relay.api.create(setup, me) map { relay =>
-                  Ok(env.relay.jsonView.admin(relay)) as JSON
-                }
-            )
+          !(me.isBot || me.lame) ??
+            env.relay.forms.create
+              .bindFromRequest()(req, formBinding)
+              .fold(
+                err => BadRequest(apiFormError(err)).fuccess,
+                setup => env.relay.api.create(setup, me) map env.relay.jsonView.admin map JsonOk
+              )
     )
 
   def edit(@nowarn("cat=unused") slug: String, id: String) =
@@ -88,7 +88,7 @@ final class Relay(
             case Some(res) =>
               res.fold(
                 { case (_, err) => BadRequest(apiFormError(err)) },
-                relay => Ok(env.relay.jsonView.admin(relay)) as JSON
+                relay => JsonOk(env.relay.jsonView.admin(relay))
               )
           }
     )
@@ -136,7 +136,7 @@ final class Relay(
         me =>
           env.relay.api.byIdAndContributor(id, me) map {
             case None        => NotFound(jsonError("No such broadcast"))
-            case Some(relay) => Ok(env.relay.jsonView.admin(relay)) as JSON
+            case Some(relay) => JsonOk(env.relay.jsonView.admin(relay))
           }
     )
 

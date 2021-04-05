@@ -382,7 +382,6 @@
   <string name="more">Higit pa</string>
   <string name="memberSince">Miyembro mula pa noong</string>
   <string name="lastSeenActive">Aktibo %s</string>
-  <string name="challengeToPlay">Hamunin sa isang laro</string>
   <string name="player">Manlalaro</string>
   <string name="list">Listahan</string>
   <string name="graph">Graph</string>
@@ -447,6 +446,7 @@
   <string name="lastName">Apelyido</string>
   <string name="biography">Talambuhay</string>
   <string name="country">Bansa</string>
+  <string name="thankYou">Salamat!</string>
   <string name="socialMediaLinks">Mga link ng social media</string>
   <string name="inlineNotation">Nakalinyang notasyon</string>
   <string name="watchLichessTV">Tumingin sa Lichess TV</string>
@@ -455,34 +455,7 @@
   <string name="activeToday">Aktibo ngayon</string>
   <string name="activePlayers">Aktibong manlalaro</string>
   <string name="bewareTheGameIsRatedButHasNoClock">Mag-ingat, ay laro ay namarkahan pero walang orasan!</string>
-  <string name="yourPuzzleRatingX">Ang iyong marka sa palaisipan: %s</string>
-  <string name="findTheBestMoveForWhite">Hanapin ang pinakamahusay na galaw para sa puti.</string>
-  <string name="findTheBestMoveForBlack">Hanapin ang pinakamahusay na galaw sa itim.</string>
-  <string name="toTrackYourProgress">Upang subaybayan ang iyong pag-unlad:</string>
-  <string name="puzzleId">Palaisipan %s</string>
-  <string name="puzzleOfTheDay">Palaisipan ngayong araw</string>
-  <string name="clickToSolve">I-click para malutas</string>
-  <string name="goodMove">Magandang galaw</string>
-  <string name="butYouCanDoBetter">Pero maaari kang gumawa ng mas mahusay.</string>
-  <string name="bestMove">Pinakamahusay na galaw!</string>
-  <string name="keepGoing">Magpatuloy…</string>
-  <string name="puzzleFailed">Nabigo ang palaisipan</string>
-  <string name="butYouCanKeepTrying">Pero pwede kang magpatuloy.</string>
   <string name="success">Tagumpay</string>
-  <string name="wasThisPuzzleAnyGood">Magaling ba ang palaisipang ito?</string>
-  <string name="pleaseVotePuzzle">Tulungan ang Lichess na umunlad sa pagboto, gamit ang taas o baba na arrow:</string>
-  <string name="thankYou">Salamat!</string>
-  <string name="ratingX">Marka: %s</string>
-  <string name="hidden">nakatago</string>
-  <plurals name="playedXTimes">
-    <item quantity="one">Nalaro %s na oras</item>
-    <item quantity="other">Nalaro %s na mga oras</item>
-  </plurals>
-  <string name="fromGameLink">Galing sa laro %s</string>
-  <string name="continueTraining">Ipagpatuloy ang pagsasanay</string>
-  <string name="retryThisPuzzle">Ulitin ang palaisipang ito</string>
-  <string name="thisPuzzleIsCorrect">Ang palaisipang ito ay eksakto at kawili-wili</string>
-  <string name="thisPuzzleIsWrong">Ang palaisipang ito ay mali o nakakainip</string>
   <plurals name="nbGamesInPlay">
     <item quantity="one">%s laro na nilalaro</item>
     <item quantity="other">%s mga  laro na nilalaro</item>
@@ -531,6 +504,7 @@
   <string name="currentPassword">Kasalukuyang password</string>
   <string name="newPassword">Bagong password</string>
   <string name="newPasswordAgain">Bagong password (muli)</string>
+  <string name="newPasswordsDontMatch">Hindi tumutugma ang mga bagong password</string>
   <string name="clockInitialTime">Panimulang oras ng Orasan</string>
   <string name="clockIncrement">Dagdag sa orasan</string>
   <string name="privacy">Pagiging Pribado</string>
@@ -556,6 +530,9 @@
   <string name="xCommentedY">%1$s nakomentohan %2$s</string>
   <string name="victory">Tagumpay</string>
   <string name="defeat">Natalo</string>
+  <string name="victoryVsYInZ">%1$s vs %2$s sa %3$s</string>
+  <string name="defeatVsYInZ">%1$s vs %2$s sa %3$s</string>
+  <string name="drawVsYInZ">%1$s vs %2$s sa %3$s</string>
   <string name="timeline">Timeline</string>
   <string name="starting">Nagsisimula:</string>
   <string name="allInformationIsPublicAndOptional">Ang lahat ng impormasyon ay nasa publiko at opsyonal.</string>
@@ -618,6 +595,7 @@
   <string name="webmasters">Webmasters</string>
   <string name="about">Patungkol</string>
   <string name="aboutX">Tungkol sa %s</string>
+  <string name="xIsAFreeYLibreOpenSourceChessServer">%1$s ay isang malaya(%2$s), libre, walang ads, open source chess server.</string>
   <string name="really">talaga</string>
   <string name="contribute">Mag-ambag</string>
   <string name="termsOfService">Termino ng Serbisyo</string>
@@ -665,6 +643,7 @@
   </plurals>
   <string name="yourPerfTypeRatingIsRating">Ang iyong %1$s marka ay %2$s.</string>
   <string name="youAreBetterThanPercentOfPerfTypePlayers">Ikaw ay mas magaling kaysa sa %1$s ng %2$s mga manlalaro.</string>
+  <string name="userIsBetterThanPercentOfPerfTypePlayers">%1$s ay mas magaling sa %2$s ng %3$s manlalaro.</string>
   <string name="youDoNotHaveAnEstablishedPerfTypeRating">Ikaw ay walang naitatag %s na marka.</string>
   <string name="yourRating">Ang iyong grado</string>
   <string name="cumulative">Naiipon</string>
@@ -718,6 +697,7 @@
   <string name="xHostsY">%1$s mga host %2$s</string>
   <string name="xJoinsY">%1$s mga sumali %2$s</string>
   <string name="xLikesY">%1$s mga gusto %2$s</string>
+  <string name="xCreatesStudyY">Si%1$s ay gumawa ng pag-aaral tungkol sa %2$s</string>
   <string name="quickPairing">Mabilis na pagpares</string>
   <string name="lobby">Lobby</string>
   <string name="anonymous">Hindi kilala</string>
@@ -751,7 +731,6 @@
   <string name="error.unknown">Mali</string>
   <string name="custom">Pinasadya</string>
   <string name="notifications">Mga Notipikasyon</string>
-  <string name="challenges">Mga Hamon</string>
   <string name="perfRatingX">Marka: %s</string>
   <plurals name="nbSecondsToPlayTheFirstMove">
     <item quantity="one">%s segundo na gawin ang unang galaw</item>
@@ -798,12 +777,6 @@
   <string name="opening">Bukasan</string>
   <string name="middlegame">Sa gitna ng laro</string>
   <string name="endgame">Taposin ang laro</string>
-  <string name="registerToSendChallenges">Magrehistro upang magpadala ng mga hamon.</string>
-  <string name="youCannotChallengeX">Hindi mo pwedeng hamonin %s.</string>
-  <string name="xDoesNotAcceptChallenges">%s ay hindi tumatanggap ng mga hamon.</string>
-  <string name="yourXRatingIsTooFarFromY">Ang iyong %1$s marka ay masyadong malayo sa %2$s.</string>
-  <string name="cannotChallengeDueToProvisionalXRating">Hindi makatanggap ng hamon dahil sa probisyonal na %s marka.</string>
-  <string name="xOnlyAcceptsChallengesFromFriends">%s tumatanggap lamang ng hamon galing sa mga kaibigan.</string>
   <string name="conditionalPremoves">Kondisyonal na mga bago gumalaw</string>
   <string name="addCurrentVariation">Magdagdag ng kasalukuyang pagkakaiba</string>
   <string name="playVariationToCreateConditionalPremoves">Maglaro ng pagkakaiba upang makagawa ng kondisyonal na mga paggalaw</string>
@@ -832,6 +805,9 @@
   <string name="agreementAssistance">Sumasang-ayon ako na hindi ako kailanman tatanggap ng ayuda sa panahon ng aking mga laro (mula sa isang kompyuter ng ahedres, aklat, database o sa ibang tao).</string>
   <string name="agreementNice">Sumasang-ayon ako na lagi akong magiging magalang sa ibang mga manlalaro.</string>
   <string name="agreementAccount">Sumasang-ayon ako na hindi ako lilikha ng maraming mga account.</string>
+  <string name="agreementPolicy">Sumasang-ayon ako na susundin ko ang lahat ng polisiya ng Lichess.</string>
+  <string name="searchOrStartNewDiscussion">Mag-search o mag-start ng bagong pag-uusap</string>
+  <string name="edit">I-edit</string>
   <string name="rapid">Mabilisan</string>
   <string name="classical">Klasiko</string>
   <string name="ultraBulletDesc">Nakakabuwang na mabibilis na mga laro: mas mababa sa tatlumpung segundo</string>

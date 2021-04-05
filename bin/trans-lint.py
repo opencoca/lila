@@ -26,7 +26,7 @@ class Report:
 
 
 def short_lang(lang):
-    if lang in ["ne-NP", "la-LA", "nn-NO", "zh-CN", "ur-PK", "zh-TW"]:
+    if lang in ["ne-NP", "la-LA", "nn-NO", "zh-CN", "ur-PK", "zh-TW", "tlh-AA"]:
         return lang.replace("-", "").lower()
     elif lang == "kab-DZ":
         return "kaby"
@@ -140,6 +140,9 @@ def lint_string(ctx, dest, source, allow_missing=0):
         m_dest = dest if pattern.isupper() else dest.lower()
         if pattern in m_source and pattern not in m_dest:
             ctx.notice(f"missing {pattern}")
+
+    if "%$" in dest:
+        ctx.error("invalid %$")
 
     if "%%" in source and "%%" not in dest:
         ctx.warning("missing %%")

@@ -9,6 +9,7 @@
   <string name="yourTurn">Radha juaj</string>
   <string name="aiNameLevelAiLevel">%1$s niveli %2$s</string>
   <string name="level">Niveli</string>
+  <string name="strength">Vështirësia</string>
   <string name="toggleTheChat">Hapni bisedën</string>
   <string name="toggleSound">Aktivizo / çaktivizo zërin</string>
   <string name="chat">Bisedo</string>
@@ -131,8 +132,8 @@
   </plurals>
   <string name="currentGames">Lojrat që po luhen tani</string>
   <plurals name="nbGames">
-    <item quantity="one">Shihni gjithë lojrat %s</item>
-    <item quantity="other">Shihni gjithë lojrat %s</item>
+    <item quantity="one">%s lojë</item>
+    <item quantity="other">%s lojëra</item>
   </plurals>
   <plurals name="nbBookmarks">
     <item quantity="one">%s Faqeruajtës</item>
@@ -199,6 +200,8 @@
     <item quantity="other">%s lojra me ju</item>
   </plurals>
   <string name="cancel">Anullo</string>
+  <string name="whiteTimeOut">Koha e bardhë jashtë</string>
+  <string name="blackTimeOut">Koha e zezë</string>
   <string name="drawOfferSent">Oferta për barazim u dërgua</string>
   <string name="drawOfferDeclined">Oferta për barazim u hodh poshtë</string>
   <string name="drawOfferAccepted">Oferta për barazim u pranua</string>
@@ -380,7 +383,6 @@
   <string name="more">Më shumë</string>
   <string name="memberSince">Anëtar që prej</string>
   <string name="lastSeenActive">Hyrja e fundit %s</string>
-  <string name="challengeToPlay">Sfidoni në një lojë</string>
   <string name="player">Lojtari</string>
   <string name="list">Lista</string>
   <string name="graph">Grafiku</string>
@@ -445,6 +447,7 @@
   <string name="lastName">Mbiemri</string>
   <string name="biography">Biografia</string>
   <string name="country">Shteti</string>
+  <string name="thankYou">Faleminderit!</string>
   <string name="socialMediaLinks">Lidhjet me llogaritë e mediat sociale</string>
   <string name="inlineNotation">Shenimet ne rresht</string>
   <string name="watchLichessTV">Shiko Lichess TV</string>
@@ -453,34 +456,7 @@
   <string name="activeToday">Aktiv sot</string>
   <string name="activePlayers">Lojëtarët aktivë</string>
   <string name="bewareTheGameIsRatedButHasNoClock">Kujdes, loja është e vlerësuar por nuk ka kohë!</string>
-  <string name="yourPuzzleRatingX">Vlerësimi i : %s</string>
-  <string name="findTheBestMoveForWhite">Gjej lëvizjen më të mirë për të bardhin.</string>
-  <string name="findTheBestMoveForBlack">Gjej lëvizjen më të mirë për të ziun.</string>
-  <string name="toTrackYourProgress">Për të ndjekur progresin:</string>
-  <string name="puzzleId">Ushtrimi %s</string>
-  <string name="puzzleOfTheDay">Ushtrimi i ditës</string>
-  <string name="clickToSolve">Kliko për t\'a zgjidhur</string>
-  <string name="goodMove">Lëvizje e mirë</string>
-  <string name="butYouCanDoBetter">Por mundesh më mirë.</string>
-  <string name="bestMove">Lëvizja më e mirë!</string>
-  <string name="keepGoing">Vazhdo ...</string>
-  <string name="puzzleFailed">Ushtrimi dështoi</string>
-  <string name="butYouCanKeepTrying">Por mundesh të provosh përsëri.</string>
   <string name="success">Sukses</string>
-  <string name="wasThisPuzzleAnyGood">A ishte ky ushtrimi i mirë?</string>
-  <string name="pleaseVotePuzzle">Ndihmo lichess të përmirësohet duke votuar, me shigjetat poshtë ose lartë:</string>
-  <string name="thankYou">Faleminderit!</string>
-  <string name="ratingX">Vlerësimi: %s</string>
-  <string name="hidden">i fshehur</string>
-  <plurals name="playedXTimes">
-    <item quantity="one">Luajtur %s herë</item>
-    <item quantity="other">Luajtur %s herë</item>
-  </plurals>
-  <string name="fromGameLink">Prej lojës %s</string>
-  <string name="continueTraining">Vazhdo trajnimin</string>
-  <string name="retryThisPuzzle">Riprovo këtë ushtrim</string>
-  <string name="thisPuzzleIsCorrect">Ky ushtrim është i saktë dhe interesant</string>
-  <string name="thisPuzzleIsWrong">Ky ushtrim është i gabuar ose i mërzitshëm</string>
   <plurals name="nbGamesInPlay">
     <item quantity="one">%s lojëra duke u luajtur</item>
     <item quantity="other">%s lojëra duke u luajtur</item>
@@ -492,6 +468,8 @@
   <string name="tournamentWinners">Fitues të turneve</string>
   <string name="name">Emri</string>
   <string name="description">Përshkrimi</string>
+  <string name="descPrivate">Përshkrim privat</string>
+  <string name="descPrivateHelp">Tekst që do të shohin vetëm anëtarët e ekipit. Nëse është vendosur, zëvendëson përshkrimin publik për anëtarët e ekipit.</string>
   <string name="no">Jo</string>
   <string name="yes">Po</string>
   <string name="help">Ndihmë</string>
@@ -512,6 +490,7 @@
   <string name="cheat">Mashtrim</string>
   <string name="insult">Fyerje</string>
   <string name="troll">Tallje</string>
+  <string name="ratingManipulation">Manipulimi i vleresimit</string>
   <string name="other">Tjetër</string>
   <string name="reportDescriptionHelp">Ngjit lidhjen e lojës dhe shpjego çfarë nuk shkon me sjelljen e këtij përdoruesi. Mos shkruaj thjesht \"mashtroi\", por na thuaj si arrite në këtë përfundim. Raportimi juaj do të përpunohet më shpejt nëse shkruhet në gjuhën angleze.</string>
   <string name="error.provideOneCheatedGameLink">Të lutem siguro të japësh një lidhje për një lojë të mashtruar.</string>
@@ -529,9 +508,12 @@
   <string name="currentPassword">Fjalëkalimi i tanishëm</string>
   <string name="newPassword">Fjalëkalimi i ri</string>
   <string name="newPasswordAgain">Fjalëkalimi i ri (përsëri)</string>
+  <string name="newPasswordsDontMatch">Fjalëkalimet e reja nuk përputhen</string>
+  <string name="newPasswordStrength">Fortësia e fjalëkalimit</string>
   <string name="clockInitialTime">Koha fillestare e orës</string>
   <string name="clockIncrement">Rritja e orës</string>
   <string name="privacy">Privatësia</string>
+  <string name="privacyPolicy">Rregullorja e privatësisë</string>
   <string name="letOtherPlayersFollowYou">Lejo lojtarët e tjerë të të ndjekin.</string>
   <string name="letOtherPlayersChallengeYou">Lejo lojtarë të tjerë të të sfidojnë</string>
   <string name="letOtherPlayersInviteYouToStudy">Lejo lojtaret e tjere te te ftojne te studimi</string>
@@ -600,6 +582,7 @@
   <string name="error.email_unique">Kjo adresë email është përdorur</string>
   <string name="error.email_different">Kjo eshte tashme adresa juaj e emailit</string>
   <string name="ifRatingIsPlusMinusX">Nëse vlerësimi është ± %s</string>
+  <string name="onlyExistingConversations">Vetëm bisedat ekzistuese</string>
   <string name="onlyFriends">Vetëm miqtë</string>
   <string name="menu">Menu</string>
   <string name="castling">Rrokada</string>
@@ -677,6 +660,7 @@
   <string name="ifYouDoNotSeeTheEmailCheckOtherPlaces">Nëse nuk e shini letrën elektronike, kontrolloni në vendet e tjera ku mund të jetë, si junk, spam, social ose dosje të tjera.</string>
   <string name="weHaveSentYouAnEmailTo">Kemi dërguar një e-letër te %s. Klikoni lidhjen brenda në e-letër për të rivendosur fjalëkalimin tuaj.</string>
   <string name="byRegisteringYouAgreeToBeBoundByOur">Duke u regjistruar, ju pranoni të jeni të lidhur me %s.</string>
+  <string name="readAboutOur">Informohuni rreth %s.</string>
   <string name="networkLagBetweenYouAndLichess">Vonesë rrjeti ndërmjet juve dhe lichess.</string>
   <string name="timeToProcessAMoveOnLichessServer">Koha për të përpunuar një lëvizje në serverin e lichess</string>
   <string name="downloadAnnotated">Shkarko bashkë me shënimet.</string>
@@ -735,7 +719,7 @@
   <string name="boardGeometry">Gjeometria e fushes</string>
   <string name="boardTheme">Tema e fushes</string>
   <string name="boardSize">Madhesia e fushes</string>
-  <string name="pieceSet">Vendosja e figurave</string>
+  <string name="pieceSet">Figurat</string>
   <string name="embedInYourWebsite">Fut ne faqen tuaj te webit</string>
   <string name="usernameAlreadyUsed">Ky emër përdoruesi ekziston tashmë, ju lutem zgjidhni një tjetër.</string>
   <string name="usernamePrefixInvalid">Emri i perdoruesit nuk duhet te filloje me numer.</string>
@@ -755,8 +739,7 @@
   <string name="error.unknown">Gabim</string>
   <string name="custom">te zakonshme</string>
   <string name="notifications">Njoftime</string>
-  <string name="challenges">Sfida</string>
-  <string name="perfRatingX">Vleresimi: %s</string>
+  <string name="perfRatingX">Vlerësimi: %s</string>
   <plurals name="nbSecondsToPlayTheFirstMove">
     <item quantity="one">%s sekonda te besh levizjen e pare</item>
     <item quantity="other">%s sekonda për të luajtur lëvizjen e parë</item>
@@ -802,12 +785,6 @@
   <string name="opening">Hapjet</string>
   <string name="middlegame">Lojë e mesme</string>
   <string name="endgame">Fund-lojët</string>
-  <string name="registerToSendChallenges">Ju lutemi regjistrohuni për të ftoj sfidën.</string>
-  <string name="youCannotChallengeX">Ju nuk mund ta ftoni %s.</string>
-  <string name="xDoesNotAcceptChallenges">%s nuk pranon ftesa.</string>
-  <string name="yourXRatingIsTooFarFromY">Vlerësimi juaj %1$s është shumë larg %2$s.</string>
-  <string name="cannotChallengeDueToProvisionalXRating">Nuk mund të sfidoj për shkak të vlerësimit të përkohshëm %s.</string>
-  <string name="xOnlyAcceptsChallengesFromFriends">%s vetëm pranon ftesa nga miqtë.</string>
   <string name="conditionalPremoves">Condizionale lëvizje</string>
   <string name="addCurrentVariation">Shtoni variacion</string>
   <string name="playVariationToCreateConditionalPremoves">Luaj një variant për të krijuar variacione</string>
@@ -839,12 +816,12 @@
   <string name="agreementPolicy">Jam dakord që do të ndjek të gjitha politikat e Lichess-it.</string>
   <string name="searchOrStartNewDiscussion">Kërkoni ose filloni muhabet e re</string>
   <string name="edit">Ndrysho</string>
-  <string name="rapid">I shpejtë</string>
+  <string name="rapid">Rapid</string>
   <string name="classical">Klasik</string>
   <string name="ultraBulletDesc">Lojëra jashtëzakonisht të shpejta: më pak se 30 sekonda</string>
   <string name="bulletDesc">Lojëra shumë të shpejta: më pak se 3 minuta</string>
   <string name="blitzDesc">Lojëra të shpejta: 3 deri në 8 minuta</string>
-  <string name="rapidDesc">Lojëra të shpejta: 8 deri në 25 minuta</string>
+  <string name="rapidDesc">Rapid: 8 deri në 25 minuta</string>
   <string name="classicalDesc">Lojëra klasike: 25 minuta dhe më shumë</string>
   <string name="correspondenceDesc">Lojëra korrespondence: një ose disa ditë çdo lëvizje</string>
   <string name="puzzleDesc">Trajner i taktikave të shahut</string>
@@ -861,4 +838,22 @@
   <string name="youCannotPostYetPlaySomeGames">Ti nuk mundësh të postosh në forume akoma. Luaj disa lojra!</string>
   <string name="subscribe">Abonohu</string>
   <string name="unsubscribe">Ç\'abonohu</string>
+  <string name="mentionedYouInX"> ju permendi tek \"%1$s\".</string>
+  <string name="xMentionedYouInY"> %1$s ju permendi tek \"%2$s\".</string>
+  <string name="invitedYouToX" comment="invitedYouToX&#10;&#10;This appears in a notification when the user is invited to join a study. %1$s is the name of the study."> ju ftoj tek \"%1$s\".</string>
+  <string name="xInvitedYouToY" comment="xInvitedYouToY&#10;&#10;This appears in a notification when the user is invited to join a study. %1$s is the user that invited you. %2$s is the name of the study.">%1$s ju ftoj tek \"%2$s\".</string>
+  <string name="youAreNowPartOfTeam">Tani je pjese e skuadres.</string>
+  <string name="youHaveJoinedTeamX">Ju u antaresuat tek \"%1$s\".</string>
+  <string name="someoneYouReportedWasBanned">Dikush qe raportuat u ndalua</string>
+  <string name="congratsYouWon">Urime, ju fituat!</string>
+  <string name="gameVsX" comment="gameVsX&#10;&#10;%1$s is the name of the opponent in a game.&#10;&#10;Examples of where this string appears:&#10;- Notification of a game that has ended (&quot;You won/Defeat/Draw [in] Game against ChessMaster99&quot;&#10;- Notification that time has almost elapsed in a correspondence game (&quot;Time is almost up [in] Game against ChessMaster99&quot;">Loja vs %1$s</string>
+  <string name="resVsX">%1$s vs %2$s</string>
+  <string name="youJustBecamePatron">Ju sapo u bëtë një Patron i lichess.</string>
+  <string name="patronAccountExpired">Llogaria e Patron skadoi</string>
+  <string name="pleaseReconsiderRenewIt">Ju lutemi merrni parasysh rinovimin e saj!</string>
+  <string name="someoneReviewedYourCoachProfile">Dikush vleresoi profilin tuaj të trajnerit.</string>
+  <string name="newPendingReview">Në pritje të shqyrtimit</string>
+  <string name="lostAgainstTOSViolator">Ti ke humbur nga dikush që shkeli rregullat e Lichess</string>
+  <string name="refundXpointsTimeControlY" comment="refundXpointsTimeControlY&#10;&#10;%1$s is the number of points refunded&#10;%2$s is the type of the rating - bullet, blitz and classical games have separate ratings.&#10;&#10;Ratings are refunded when Lichess detects that a player has lost points due to another player's cheating.">Kompensim: %1$s pikë %2$s.</string>
+  <string name="timeAlmostUp">Koha gati mbaroi!</string>
 </resources>

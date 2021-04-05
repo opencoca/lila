@@ -28,6 +28,10 @@ trait ScalatagsAttrs {
     val scrolling       = attr("scrolling")
     val allowfullscreen = attr("allowfullscreen").empty
   }
+
+  val dataSortNumberTh = th(attr("data-sort-method") := "number")
+  val dataSort         = attr("data-sort")
+  val dataSortDefault  = attr("data-sort-default").empty
 }
 
 // collection of lila snippets
@@ -144,6 +148,8 @@ trait ScalatagsExtensions {
     t.setAttr("rel", Builder.GenericAttrValueSource("noopener"))
     t.setAttr("target", Builder.GenericAttrValueSource("_blank"))
   }
+
+  val noFollow = rel := "nofollow"
 
   def ariaTitle(v: String): Modifier = (t: Builder) => {
     val value = Builder.GenericAttrValueSource(v)

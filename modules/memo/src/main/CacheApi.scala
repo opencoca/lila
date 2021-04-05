@@ -27,9 +27,8 @@ final class CacheApi(
   }
 
   // AsyncLoadingCache for a single entry
-  def unit[V](build: Builder => AsyncLoadingCache[Unit, V]): AsyncLoadingCache[Unit, V] = {
+  def unit[V](build: Builder => AsyncLoadingCache[Unit, V]): AsyncLoadingCache[Unit, V] =
     build(scaffeine initialCapacity 1)
-  }
 
   // AsyncLoadingCache with monitoring and a synchronous getter
   def sync[K, V](
@@ -51,6 +50,16 @@ final class CacheApi(
   def notLoading[K, V](initialCapacity: Int, name: String)(
       build: Builder => AsyncCache[K, V]
   ): AsyncCache[K, V] = {
+    val cache = build {
+      scaffeine.recordStats().initialCapacity(actualCapacity(initialCapacity))
+    }
+    monitor(name, cache)
+    cache
+  }
+
+  def notLoadingSync[K, V](initialCapacity: Int, name: String)(
+      build: Builder => Cache[K, V]
+  ): Cache[K, V] = {
     val cache = build {
       scaffeine.recordStats().initialCapacity(actualCapacity(initialCapacity))
     }

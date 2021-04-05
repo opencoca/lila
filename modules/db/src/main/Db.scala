@@ -24,7 +24,7 @@ final class AsyncDb(
       conn database dbName.getOrElse("lichess")
     }
 
-  def apply(name: CollName) = new AsyncColl(() => db.dmap(_(name.value)))
+  def apply(name: CollName) = new AsyncColl(name, () => db.dmap(_(name.value)))
 }
 
 final class Db(
@@ -49,9 +49,4 @@ final class Db(
   }
 
   def apply(name: CollName): Coll = db(name.value)
-
-  val runCommand = new RunCommand({ (command, readPreference) =>
-    db.runCommand(command, FailoverStrategy.strict)
-      .one[dsl.Bdoc](readPreference)
-  })
 }

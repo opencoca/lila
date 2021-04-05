@@ -43,7 +43,9 @@ ${Mailgun.txt.serviceNote}
     }
 
   def confirm(token: String): Fu[Option[User]] =
-    tokener read token flatMap { _ ?? userRepo.byId }
+    tokener read token flatMap { _ ?? userRepo.byId } map {
+      _.filter(_.canFullyLogin)
+    }
 
   private val tokener = LoginToken.makeTokener(tokenerSecret, 10 minutes)
 }
@@ -59,19 +61,19 @@ object MagicLink {
   private lazy val rateLimitPerIP = new RateLimit[IpAddress](
     credits = 5,
     duration = 1 hour,
-    key = "email.confirms.ip"
+    key = "login.magicLink.ip"
   )
 
   private lazy val rateLimitPerUser = new RateLimit[String](
     credits = 3,
     duration = 1 hour,
-    key = "email.confirms.user"
+    key = "login.magicLink.user"
   )
 
   private lazy val rateLimitPerEmail = new RateLimit[String](
     credits = 3,
     duration = 1 hour,
-    key = "email.confirms.email"
+    key = "login.magicLink.email"
   )
 
   def rateLimit[A: Zero](user: User, email: EmailAddress, req: RequestHeader)(

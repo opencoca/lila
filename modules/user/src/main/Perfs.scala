@@ -23,7 +23,8 @@ case class Perfs(
     rapid: Perf,
     classical: Perf,
     correspondence: Perf,
-    puzzle: Perf
+    puzzle: Perf,
+    storm: Perf.Storm
 ) {
 
   def perfs =
@@ -181,13 +182,18 @@ case class Perfs(
       case (Some(acc), date) if date isAfter acc => date.some
       case (acc, _)                              => acc
     }
+
+  def dubiousPuzzle = {
+    puzzle.glicko.rating > 3000 && !standard.glicko.establishedIntRating.exists(_ > 2100) ||
+    puzzle.glicko.rating > 2500 && !standard.glicko.establishedIntRating.exists(_ > 1800)
+  }
 }
 
 case object Perfs {
 
   val default = {
     val p = Perf.default
-    Perfs(p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, p)
+    Perfs(p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, p, Perf.Storm.default)
   }
 
   val defaultManaged = {
@@ -250,7 +256,8 @@ case object Perfs {
         rapid = perf("rapid"),
         classical = perf("classical"),
         correspondence = perf("correspondence"),
-        puzzle = perf("puzzle")
+        puzzle = perf("puzzle"),
+        storm = r.getO[Perf.Storm]("storm") getOrElse Perf.Storm.default
       )
     }
 
@@ -273,7 +280,8 @@ case object Perfs {
         "rapid"          -> notNew(o.rapid),
         "classical"      -> notNew(o.classical),
         "correspondence" -> notNew(o.correspondence),
-        "puzzle"         -> notNew(o.puzzle)
+        "puzzle"         -> notNew(o.puzzle),
+        "storm"          -> (o.storm.nonEmpty option o.storm)
       )
   }
 

@@ -28,8 +28,7 @@ object HTTPRequest {
     "capacitor://localhost", // ios
     "ionic://localhost",     // ios
     "http://localhost",      // android
-    "http://localhost:8080", // local dev
-    "file://"                // old app
+    "http://localhost:8080"  // local dev
   )
 
   def appOrigin(req: RequestHeader) = origin(req) filter appOrigins
@@ -52,8 +51,8 @@ object HTTPRequest {
   def referer(req: RequestHeader): Option[String] = req.headers get HeaderNames.REFERER
 
   def ipAddress(req: RequestHeader) =
-    IpAddress {
-      req.remoteAddress.split(", ").lastOption | req.remoteAddress
+    IpAddress.unchecked {
+      req.remoteAddress.split(", ").lastOption | req.remoteAddress // trusted
     }
 
   def sid(req: RequestHeader): Option[String] = req.session get LilaCookie.sessionId
@@ -108,6 +107,8 @@ object HTTPRequest {
       case _                          => none
     }
   }
+
+  def isAppeal(req: RequestHeader) = req.path.startsWith("/appeal")
 
   def clientName(req: RequestHeader) =
     // the mobile app sends XHR headers

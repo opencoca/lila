@@ -35,7 +35,6 @@ final class ActivityWriteApi(
           _ <-
             (!setters.isEmpty) ?? coll.update
               .one($id(a.id), $set(setters), upsert = true)
-              .recover(ignoreDuplicateKey)
               .void
         } yield ()
       }
@@ -52,7 +51,6 @@ final class ActivityWriteApi(
             upsert = true
           )
           .void
-          .recover(ignoreDuplicateKey)
       }
     }
 
@@ -70,7 +68,39 @@ final class ActivityWriteApi(
           upsert = true
         )
         .void
-        .recover(ignoreDuplicateKey)
+    }
+
+  def storm(userId: User.ID, score: Int): Funit =
+    getOrCreate(userId) flatMap { a =>
+      coll.update
+        .one(
+          $id(a.id),
+          $set(ActivityFields.storm -> { ~a.storm + score }),
+          upsert = true
+        )
+        .void
+    }
+
+  def racer(userId: User.ID, score: Int): Funit =
+    getOrCreate(userId) flatMap { a =>
+      coll.update
+        .one(
+          $id(a.id),
+          $set(ActivityFields.racer -> { ~a.racer + score }),
+          upsert = true
+        )
+        .void
+    }
+
+  def streak(userId: User.ID, score: Int): Funit =
+    getOrCreate(userId) flatMap { a =>
+      coll.update
+        .one(
+          $id(a.id),
+          $set(ActivityFields.streak -> { ~a.streak + score }),
+          upsert = true
+        )
+        .void
     }
 
   def learn(userId: User.ID, stage: String) =
@@ -142,6 +172,11 @@ final class ActivityWriteApi(
   def streamStart(userId: User.ID) =
     update(userId) { _.copy(stream = true).some }
 
+  def swiss(id: lila.swiss.Swiss.Id, ranking: lila.swiss.Ranking) =
+    ranking.map { case (userId, rank) =>
+      update(userId) { a => a.copy(swisses = Some(~a.swisses + SwissRank(id, rank))).some }
+    }.sequenceFu
+
   def erase(user: User) = coll.delete.one(regexId(user.id))
 
   private def simulParticipant(simul: lila.simul.Simul, userId: String) =
@@ -151,8 +186,7 @@ final class ActivityWriteApi(
 
   private def get(userId: User.ID)         = coll.byId[Activity, Id](Id today userId)
   private def getOrCreate(userId: User.ID) = get(userId) map { _ | Activity.make(userId) }
-  private def save(activity: Activity) =
-    coll.update.one($id(activity.id), activity, upsert = true).void.recover(ignoreDuplicateKey)
+  private def save(activity: Activity)     = coll.update.one($id(activity.id), activity, upsert = true).void
   private def update(userId: User.ID)(f: Activity => Option[Activity]): Funit =
     getOrCreate(userId) flatMap { old =>
       f(old) ?? save

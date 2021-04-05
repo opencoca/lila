@@ -17,8 +17,6 @@
   <string name="areThereWebsitesBasedOnLichess">Finnes det nettsteder som er basert på Lichess?</string>
   <string name="yesLichessInspiredOtherOpenSourceWebsites">Ja. Lichess har så visst inspirert andre nettsteder med åpen kildekode som bruker vår %1$s, vårt %2$s eller vår %3$s.</string>
   <string name="fairPlay">Sportslig opptreden</string>
-  <string name="whyFlaggedRatingManipulationOrCheater">Hvorfor har jeg fått anmerkning for kunstig ratingmanipulering (sandbagging og boosting) eller maskinhjelp?</string>
-  <string name="cheatDetectionMethods">Lichess rår over sterke deteksjonsmetoder og vi går grundig gjennom alle bevisene før avgjørelsen tas. Ofte er det mange moderatorer involvert i prosessen, som derfor kan ta lang tid. Sett bort fra selve anmerkningen går vi ikke inn på nærmere detaljer omkring beviser eller beslutningsprosessen i enkeltsaker. Hvis vi gjorde det, ville det bli lettere å unngå avsløringer i framtiden, og det ville være å invitere til uproduktive debatter. Vår tid og innsats kan brukes bedre på andre viktige saker. Brukere kan anke på e-post til %1$s, men avgjørelser blir sjelden omstøtt.</string>
   <string name="whenAmIEligibleRatinRefund">Når er jeg kvalifisert til automatisk ratingrefusjon fra juksemakere?</string>
   <string name="ratingRefundExplanation">Ett minutt etter at en spiller er markert, blir de 40 siste ratede partiene de siste 3 dagene betraktet. Hvis du var motstander i disse partiene, du mistet rating (på grunn av tap eller remis) og ratingen din ikke var provisorisk, får du refusjon. Refusjonen er begrenset oppad basert på toppratingen din og ratingprogresjonen din etter partiet.
   (Hvis for eksempel ratingen din økte sterkt etter disse partiene, kan det hende du ikke får refusjon eller bare delvis refusjon.) En refusjon vil aldri overstige 150 poeng.</string>
@@ -33,7 +31,7 @@
   <string name="basedOnGameDuration">Tidskontrollene hos Lichess er basert på estimert varighet av partiet = %1$s
 For eksempel er den estimerte varigheten av et 5+3-parti 5 · 60 + 40 · 3 = 420 sekunder.</string>
   <string name="durationFormula">(starttid på sjakkuret) + 40 · (tilleggstid)</string>
-  <string name="inferiorThanXsEqualYtimeControl">≤ %1$ss = %2$s</string>
+  <string name="inferiorThanXsEqualYtimeControl">&lt; %1$ss = %2$s</string>
   <string name="superiorThanXsEqualYtimeControl">≥ %1$ss = %2$s</string>
   <string name="whatVariantsCanIplay">Hvilke varianter kan jeg spille hos Lichess?</string>
   <string name="lichessSupportChessAnd">Lichess støtter standardsjakk og %1$s.</string>
@@ -52,26 +50,26 @@ Lichess bruker Stockfish til maskinanalyse.</string>
 Dette kan i sjeldne tilfeller være vanskelig å avgjøre automatisk (tvungne linjer, festninger). Da holder vi med spilleren der tiden ikke løp ut.
 
 Legg merke til at den kan være mulig å matte med en enkelt springer eller løper hvis motstanderen har en brikke som kan blokkere kongen.</string>
-  <string name="fideHandbookX" comment="fideHandbookX&#10;&#10;%s is the section. This string appears as 'FIDE handbook §6.9' under the section 'Losing on time, drawing and insufficient material' of the FAQ.&#10;&#10;A link to https://handbook.fide.com/chapter/E012018. ">FIDEs håndbok %s</string>
+  <string name="fideHandbookX">FIDEs håndbok %s</string>
   <string name="discoveringEnPassant">Hvorfor kan en bonde slå en annen bonde når den allerede er passert? (en passant)</string>
-  <string name="explainingEnPassant">Dette er et lovlig trekk kjent som \"en passant\". Wikipedia-artikkelen gir en %1$s.
+  <string name="explainingEnPassant">Dette er et lovlig trekk kjent som «en passant». Wikipedia-artikkelen gir en %1$s.
 
-Trekket står omtalt i avsnitt 3.7 (d) i de %2$s:
+Trekket står omtalt i %2$s:
 
-\"En bonde som står på et felt på samme rad som og på nabolinjen til en av motstandernes bønder som er flyttet to felter fram fra utgangsfeltet, kan slå motstanderens bonde som om den bare var flyttet ett felt fram. Dette er bare lovlig i trekket umiddelbart etter at motstanderens bonde er flyttet to felter fram, og kalles å slå \'en passant\'.\"
+«En bonde som står på et felt på samme rad som og på nabolinjen til en av motstandernes bønder som er flyttet to felter fram fra utgangsfeltet, kan slå motstanderens bonde som om den bare var flyttet ett felt fram. Dette er bare lovlig i trekket umiddelbart etter at motstanderens bonde er flyttet to felter fram, og kalles å slå ‘en passant’.»
 
 Se mer om dette trekket i %3$s for å få litt øvelse med det.</string>
   <string name="goodIntroduction">god innføring</string>
   <string name="officialRulesPDF">offisielle reglene (pdf)</string>
   <string name="lichessTraining">Lichess-øvelsene</string>
   <string name="threefoldRepetition">Trekkgjentakelse</string>
-  <string name="threefoldRepetitionExplanation">Hvis en stilling oppstår tre ganger, kan spillerne kreve remis ved %1$s. Lichess implementerer de offisielle FIDE-reglene, som står omtalt i artikkel 9.2 (d) i %2$s.</string>
+  <string name="threefoldRepetitionExplanation">Hvis en stilling oppstår tre ganger, kan spillerne kreve remis ved %1$s. Lichess implementerer de offisielle FIDE-reglene, som står omtalt i %2$s.</string>
   <string name="threefoldRepetitionLowerCase">trekkgjentakelse</string>
   <string name="notRepeatedMoves">Vi gjentok ikke trekk. Hvorfor ble partiet remis ved trekkgjentakelse?</string>
   <string name="repeatedPositionsThatMatters">Trekkgjentakelse dreier seg om gjentatte %1$s, ikke trekk. Gjentakelsene trenger ikke skje rett etter hverandre.</string>
   <string name="positions">stillinger</string>
   <string name="weRepeatedthreeTimesPosButNoDraw">Vi gjentok en stilling tre ganger. Hvorfor ble det ikke remis?</string>
-  <string name="threeFoldHasToBeClaimed">Trekkgjentakelse må kreves av en av spillerne. Du kan gjøre det ved å trykke på knappen som dukker opp, eller ved å tilby remis før du gjør det endelige gjentakende trekket. Du kan også %1$s Lichess til å automatisk kreve trekkgjentakelse for deg. I tillegg vil spillet avsluttes øyeblikkelig hvis samme stilling oppstår fem ganger.</string>
+  <string name="threeFoldHasToBeClaimed">Trekkgjentakelse må kreves av en av spillerne. Du kan gjøre det ved å trykke på knappen som dukker opp, eller ved å tilby remis før du gjør det endelige gjentakende trekket. Det betyr ingenting om motstanderen avslår remistilbudet, trekkgjentakelsen blir krevd uansett. Du kan også %1$s Lichess til å automatisk kreve trekkgjentakelse for deg. I tillegg vil spillet avsluttes øyeblikkelig hvis samme stilling oppstår fem ganger.</string>
   <string name="configure">konfigurere</string>
   <string name="accounts">Kontoer</string>
   <string name="titlesAvailableOnLichess">Hvilke titler finnes hos Lichess?</string>
@@ -93,6 +91,8 @@ Ikke be om LM-tittelen.</string>
   <string name="whatUsernameCanIchoose">Hva kan brukernavnet mitt være?</string>
   <string name="usernamesNotOffensive">Brukernavnet skal ikke være støtende, det skal ikke gi seg ut for å tilhøre en annen enn deg selv og det skal ikke inneholde reklame. Du kan lese mer om %1$s.</string>
   <string name="guidelines">retningslinjene</string>
+  <string name="canIChangeMyUsername">Kan jeg endre brukernavnet mitt?</string>
+  <string name="usernamesCannotBeChanged">Nei, det er tekniske og praktiske årsaker til at brukernavn ikke kan endres. Brukernavn opptrer for mange steder: databaser, eksporter, logger og folks hoder. Du kan endre mellom store og små bokstaver én gang.</string>
   <string name="uniqueTrophies">Unike trofeer</string>
   <string name="ownerUniqueTrophies">Det trofeet er unikt i Lichess-historien, ingen andre enn %1$s vil noensinne få det.</string>
   <string name="wayOfBerserkExplanation">For å få det utfordret hiimgosu seg selv til å gå berserk i og vinne 100%% av partiene i %s.</string>

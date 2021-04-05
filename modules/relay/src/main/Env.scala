@@ -12,8 +12,11 @@ final class Env(
     db: lila.db.Db,
     studyApi: lila.study.StudyApi,
     chapterRepo: lila.study.ChapterRepo,
+    gameRepo: lila.game.GameRepo,
+    pgnDump: lila.game.PgnDump,
+    gameProxy: lila.round.GameProxyRepo,
     cacheApi: lila.memo.CacheApi,
-    slackApi: lila.slack.SlackApi,
+    slackApi: lila.irc.SlackApi,
     baseUrl: BaseUrl
 )(implicit
     ec: scala.concurrent.ExecutionContext,

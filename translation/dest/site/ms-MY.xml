@@ -9,6 +9,7 @@
   <string name="yourTurn">Giliran anda</string>
   <string name="aiNameLevelAiLevel">%2$s tahap %1$s</string>
   <string name="level">Tahap</string>
+  <string name="strength">Malay</string>
   <string name="toggleTheChat">Togol bual</string>
   <string name="toggleSound">Bunyi togel</string>
   <string name="chat">Sembang</string>
@@ -259,6 +260,7 @@
   <plurals name="giveNbSeconds">
     <item quantity="other">Beri %s saat</item>
   </plurals>
+  <string name="thisAccountViolatedTos">Akaun ini melanggar Syarat Perkhidmatan Lichess</string>
   <string name="thisPlayerArtificiallyIncreasesTheirRating">Pemain ini menggodam rating mereka untuk menaik/menurun</string>
   <string name="openingExplorerAndTablebase">Peneroka opening&amp; senarai jadual</string>
   <string name="takeback">Ambil semula</string>
@@ -315,7 +317,6 @@
   <string name="more">Papar lebih</string>
   <string name="memberSince">Ahli sejak</string>
   <string name="lastSeenActive">Aktif: %s</string>
-  <string name="challengeToPlay">Cabar ke permainan</string>
   <string name="player">Pemain</string>
   <string name="list">Senarai</string>
   <string name="graph">Graf</string>
@@ -355,16 +356,6 @@
   <string name="tournamentComplete">Pertandingan selesai</string>
   <string name="movesPlayed">Gerakan dimain</string>
   <string name="whiteWins">Buah putih menang</string>
-  <string name="ratingX">Rating: %s</string>
-  <string name="hidden">tersembunyi</string>
-  <plurals name="playedXTimes">
-    <item quantity="other">Bermain selama %s</item>
-  </plurals>
-  <string name="fromGameLink">Dari permainan %s</string>
-  <string name="continueTraining">Teruskan latihan</string>
-  <string name="retryThisPuzzle">Cuba semula teka teki ini</string>
-  <string name="thisPuzzleIsCorrect">Teka teki ini betul dan menarik</string>
-  <string name="thisPuzzleIsWrong">Teka teki ini salah dan membosankan</string>
   <plurals name="nbGamesInPlay">
     <item quantity="other">%s permainan sedang berlangsung</item>
   </plurals>
@@ -520,12 +511,6 @@
   <string name="opening">Opening</string>
   <string name="middlegame">Middlegame</string>
   <string name="endgame">Endgame</string>
-  <string name="registerToSendChallenges">Sila daftar untuk hantar cabaran.</string>
-  <string name="youCannotChallengeX">Anda tidak boleh mencabar%s.</string>
-  <string name="xDoesNotAcceptChallenges">%s tidak menerima cabaran.</string>
-  <string name="yourXRatingIsTooFarFromY">Rating anda%1$s jauh daripada rating %2$s.</string>
-  <string name="cannotChallengeDueToProvisionalXRating">Tidak boleh cabar kerana rating %s masih tidak stabil.</string>
-  <string name="xOnlyAcceptsChallengesFromFriends">%s hanya boleh terima cabaran daripada rakan-rakan.</string>
   <string name="conditionalPremoves">Pre-gerakan bersyarat</string>
   <string name="addCurrentVariation">Tambah variasi semasa</string>
   <string name="playVariationToCreateConditionalPremoves">Tambah variasi untuk membuat pre-gerakan bersyarat</string>

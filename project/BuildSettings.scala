@@ -7,7 +7,7 @@ object BuildSettings {
   import Dependencies._
 
   val lilaVersion        = "3.2"
-  val globalScalaVersion = "2.13.4"
+  val globalScalaVersion = "2.13.5"
 
   val useEpoll = sys.props.get("epoll").fold(false)(_.toBoolean)
   if (useEpoll) println("--- epoll build ---")
@@ -24,7 +24,8 @@ object BuildSettings {
       // disable publishing doc and sources
       sources in (Compile, doc) := Seq.empty,
       publishArtifact in (Compile, packageDoc) := false,
-      publishArtifact in (Compile, packageSrc) := false
+      publishArtifact in (Compile, packageSrc) := false,
+      javaOptions ++= Seq("-Xms64m", "-Xmx256m")
     )
 
   lazy val defaultLibs: Seq[ModuleID] =
@@ -87,8 +88,8 @@ object BuildSettings {
     "-Wdead-code",
     "-Wextra-implicit",
     // "-Wnumeric-widen",
-    "-Wunused:imports",
-    "-Wunused:locals",
+    // "-Wunused:imports",
+    // "-Wunused:locals",
     "-Wunused:patvars",
     // "-Wunused:privates", // unfortunately doesn't work with macros
     // "-Wunused:implicits",

@@ -5,7 +5,7 @@ import play.api.data.Form
 import lila.api.Context
 import lila.app.templating.Environment._
 import lila.app.ui.ScalatagsTemplate._
-import lila.relay.Relay.Sync.LccRegex
+import lila.relay.Relay.Sync.UpstreamUrl.LccRegex
 import lila.relay.RelayForm.Data
 
 import controllers.routes
@@ -17,7 +17,7 @@ object form {
   def create(form: Form[Data])(implicit ctx: Context) =
     layout(newBroadcast.txt())(
       h1(newBroadcast()),
-      inner(form, routes.Relay.create())
+      inner(form, routes.Relay.create)
     )
 
   def edit(r: lila.relay.Relay, form: Form[Data])(implicit ctx: Context) =
@@ -51,6 +51,11 @@ object form {
 
   private def inner(form: Form[Data], url: play.api.mvc.Call)(implicit ctx: Context) =
     postForm(cls := "form3", action := url)(
+      div(cls := "form-group")(
+        a(dataIcon := "", cls := "text", href := routes.Page.loneBookmark("broadcasts"))(
+          "How to use Lichess Broadcasts"
+        )
+      ),
       form3.globalError(form),
       form3.group(form("name"), eventName())(form3.input(_)(autofocus)),
       form3.group(form("description"), eventDescription())(form3.textarea(_)(rows := 2)),
@@ -74,9 +79,13 @@ object form {
       else form3.hidden(form("official")),
       form3.group(
         form("syncUrl"),
-        sourceUrl(),
-        help = sourceUrlHelp().some
-      )(form3.input(_, typ = "url")),
+        sourceUrlOrGameIds(),
+        help = frag(
+          sourceUrlHelp(),
+          br,
+          gameIdsHelp()
+        ).some
+      )(form3.input(_)),
       form("syncUrl").value.exists(LccRegex.matches) option {
         form3.group(form("syncUrlRound"), roundNumber())(
           form3.input(_, typ = "number")(required := true)

@@ -1,4 +1,4 @@
-import { VNode } from 'snabbdom/vnode';
+import { VNode } from 'snabbdom';
 import { GameData, Status } from 'game';
 import { ClockData, Seconds, Centis } from './clock/clockCtrl';
 import { CorresClockData } from './corresClock/corresClockCtrl';
@@ -36,9 +36,11 @@ export interface SocketDrop {
   b?: 1;
 }
 
-export type EncodedDests = string | {
-  [key: string]: string;
-}
+export type EncodedDests =
+  | string
+  | {
+      [key: string]: string;
+    };
 export type Dests = cg.Dests;
 
 export interface RoundData extends GameData {
@@ -87,7 +89,7 @@ export interface RoundOpts {
   onChange(d: RoundData): void;
   element: HTMLElement;
   crosstableEl: HTMLElement;
-  i18n: any;
+  i18n: I18nDict;
   chat?: ChatOpts;
 }
 
@@ -117,7 +119,7 @@ export interface ApiMove extends Step {
     white: Seconds;
     black: Seconds;
     lag?: Centis;
-  }
+  };
   status: Status;
   winner?: Color;
   check: boolean;
@@ -155,11 +157,10 @@ export interface ApiEnd {
   clock?: {
     wc: Centis;
     bc: Centis;
-  }
+  };
 }
 
-export interface StepCrazy extends Untyped {
-}
+export interface StepCrazy extends Untyped {}
 
 export interface Pref {
   animationDuration: number;

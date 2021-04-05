@@ -1,19 +1,16 @@
 package lila.round
 
-import scala.math
-
+import actorApi.SocketStatus
+import chess.format.{ FEN, Forsyth }
+import chess.{ Clock, Color }
 import play.api.libs.json._
+import scala.math
 
 import lila.common.ApiVersion
 import lila.game.JsonView._
 import lila.game.{ Pov, Game, Player => GamePlayer }
 import lila.pref.Pref
 import lila.user.{ User, UserRepo }
-
-import chess.format.{ FEN, Forsyth }
-import chess.{ Clock, Color }
-
-import actorApi.SocketStatus
 
 final class JsonView(
     userRepo: UserRepo,
@@ -24,23 +21,17 @@ final class JsonView(
     moretimer: Moretimer,
     divider: lila.game.Divider,
     evalCache: lila.evalCache.EvalCacheApi,
-    isOfferingRematch: Pov => Boolean,
-    animation: AnimationDuration,
-    moretime: MoretimeDuration
+    isOfferingRematch: Pov => Boolean
 )(implicit ec: scala.concurrent.ExecutionContext) {
 
   import JsonView._
-
-  private val moretimeSeconds = moretime.value.toSeconds.toInt
 
   private def checkCount(game: Game, color: Color) =
     (game.variant == chess.variant.ThreeCheck) option game.history.checkCount(color)
 
   private def commonPlayerJson(g: Game, p: GamePlayer, user: Option[User], withFlags: WithFlags): JsObject =
     Json
-      .obj(
-        "color" -> p.color.name
-      )
+      .obj("color" -> p.color.name)
       .add("user" -> user.map { userJsonView.minimal(_, g.perfType) })
       .add("rating" -> p.rating)
       .add("ratingDiff" -> p.ratingDiff)
@@ -88,7 +79,7 @@ final class JsonView(
             ),
             "pref" -> Json
               .obj(
-                "animationDuration" -> animationDuration(pov, pref),
+                "animationDuration" -> animationMillis(pov, pref),
                 "coords"            -> pref.coords,
                 "resizeHandle"      -> pref.resizeHandle,
                 "replay"            -> pref.replay,
@@ -173,7 +164,8 @@ final class JsonView(
             "player" -> {
               commonWatcherJson(game, player, playerUser, withFlags) ++ Json.obj(
                 "version"   -> socket.version.value,
-                "spectator" -> true
+                "spectator" -> true,
+                "id"        -> me.flatMap(game.player).map(_.id)
               )
             }.add("onGame" -> (player.isAi || socket.onGame(player.color))),
             "opponent" -> commonWatcherJson(game, opponent, opponentUser, withFlags).add(
@@ -186,7 +178,7 @@ final class JsonView(
             ),
             "pref" -> Json
               .obj(
-                "animationDuration" -> animationDuration(pov, pref),
+                "animationDuration" -> animationMillis(pov, pref),
                 "coords"            -> pref.coords,
                 "resizeHandle"      -> pref.resizeHandle,
                 "replay"            -> pref.replay,
@@ -247,10 +239,9 @@ final class JsonView(
         "orientation" -> orientation.name,
         "pref" -> Json
           .obj(
-            "animationDuration" -> animationDuration(pov, pref),
+            "animationDuration" -> animationMillis(pov, pref),
             "coords"            -> pref.coords,
-            "moveEvent"         -> pref.moveEvent,
-            "resizeHandle"      -> pref.resizeHandle
+            "moveEvent"         -> pref.moveEvent
           )
           .add("rookCastle" -> (pref.rookCastle == Pref.RookCastle.YES))
           .add("is3d" -> pref.is3d)
@@ -269,7 +260,7 @@ final class JsonView(
     }
 
   private def clockJson(clock: Clock): JsObject =
-    clockWriter.writes(clock) + ("moretime" -> JsNumber(moretimeSeconds))
+    clockWriter.writes(clock) + ("moretime" -> JsNumber(actorApi.round.Moretime.defaultDuration.toSeconds))
 
   private def possibleMoves(pov: Pov, apiVersion: ApiVersion): Option[JsValue] =
     (pov.game playableBy pov.player) option
@@ -282,21 +273,10 @@ final class JsonView(
       }
     }
 
-  private def animationFactor(pref: Pref): Float =
-    pref.animation match {
-      case 0 => 0
-      case 1 => 0.5f
-      case 2 => 1
-      case 3 => 2
-      case _ => 1
-    }
-
-  private def animationDuration(pov: Pov, pref: Pref) =
-    math.round {
-      animationFactor(pref) * animation.value.toMillis * {
-        if (pov.game.finished) 1
-        else math.max(0, math.min(1.2, ((pov.game.estimateTotalTime - 60) / 60) * 0.2))
-      }
+  private def animationMillis(pov: Pov, pref: Pref) =
+    pref.animationMillis * {
+      if (pov.game.finished) 1
+      else math.max(0, math.min(1.2, ((pov.game.estimateTotalTime - 60) / 60) * 0.2))
     }
 }
 

@@ -29,7 +29,7 @@ object show {
           image = s.streamer.picturePath.map(p => dbImageUrl(p.value))
         )
         .some,
-      csp = defaultCsp.withTwitch.some
+      csp = defaultCsp.finalizeWithTwitch.some
     )(
       main(cls := "page-menu streamer-show")(
         st.aside(cls := "page-menu__menu")(
@@ -52,7 +52,7 @@ object show {
             }
           ),
           bits.menu("show", s.withoutStream.some),
-          a(cls := "ads-vulnerable blocker none button button-metal", href := "https://getublockorigin.com")(
+          a(cls := "ads-vulnerable blocker none button button-metal", href := "https://ublockorigin.com")(
             i(dataIcon := ""),
             strong(installBlocker()),
             beSafe()

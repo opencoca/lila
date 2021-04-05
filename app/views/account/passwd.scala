@@ -23,13 +23,13 @@ object passwd {
       div(cls := "account box box-pad")(
         h1(trans.changePassword()),
         standardFlash(),
-        postForm(cls := "form3", action := routes.Account.passwdApply())(
+        postForm(cls := "form3", action := routes.Account.passwdApply)(
           form3.passwordModified(form("oldPasswd"), trans.currentPassword())(
             autofocus,
             autocomplete := "current-password"
           ),
           form3.passwordModified(form("newPasswd1"), trans.newPassword())(autocomplete := "new-password"),
-          form3.passwordComplexityMeter(),
+          form3.passwordComplexityMeter(trans.newPasswordStrength()),
           form3.passwordModified(form("newPasswd2"), trans.newPasswordAgain())(
             autocomplete := "new-password"
           ),

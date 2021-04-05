@@ -272,10 +272,11 @@
     <item quantity="one">Gefa %s sekúndur</item>
     <item quantity="other">Gefa %s sekúndur</item>
   </plurals>
+  <string name="thisAccountViolatedTos">Þessi notandi braut þjónustuskilmálum Lichess</string>
   <string name="thisPlayerArtificiallyIncreasesTheirRating">Þessi skákmaður hækkar/lækkar stig sín með vafasömum hætti</string>
   <string name="openingExplorerAndTablebase">Opnunarvafri og endataflsútreikningar</string>
   <string name="takeback">Afturköllun</string>
-  <string name="proposeATakeback">Byðja um afturköllun</string>
+  <string name="proposeATakeback">Biðja um afturköllun</string>
   <string name="takebackPropositionSent">Boð um afturköllun sent</string>
   <string name="takebackPropositionDeclined">Boði um afturköllun hafnað</string>
   <string name="takebackPropositionAccepted">Boð um afturköllun samþykkt</string>
@@ -373,7 +374,6 @@
   <string name="more">Meira</string>
   <string name="memberSince">Meðlimur síðan</string>
   <string name="lastSeenActive">Síðast tengdur %s</string>
-  <string name="challengeToPlay">Áskorun</string>
   <string name="player">Skákmenn</string>
   <string name="list">Listi</string>
   <string name="graph">Graf</string>
@@ -437,40 +437,14 @@
   <string name="lastName">Eftirnafn</string>
   <string name="biography">Lífssaga</string>
   <string name="country">Land</string>
+  <string name="thankYou">Takk fyrir!</string>
   <string name="watchLichessTV">Horfðu á Lichessvarpið</string>
   <string name="previouslyOnLichessTV">Áður á Lichessvarpinu</string>
   <string name="onlinePlayers">Tengdir notendur</string>
   <string name="activeToday">Virkir í dag</string>
   <string name="activePlayers">Virkir notendur</string>
   <string name="bewareTheGameIsRatedButHasNoClock">Varúð, leikurinn gildir til stiga, en er án klukku!</string>
-  <string name="yourPuzzleRatingX">Skákdæmastig: %s</string>
-  <string name="findTheBestMoveForWhite">Finndu besta leikinn fyrir hvítan.</string>
-  <string name="findTheBestMoveForBlack">Finndu besta leikinn fyrir svartan</string>
-  <string name="toTrackYourProgress">Til að fylgjast með bætingu:</string>
-  <string name="puzzleId">Þraut %s</string>
-  <string name="puzzleOfTheDay">Þraut dagsins</string>
-  <string name="clickToSolve">Smelltu til að leysa</string>
-  <string name="goodMove">Góður leikur</string>
-  <string name="butYouCanDoBetter">En þú getur gert betur.</string>
-  <string name="bestMove">Besti leikurinn!</string>
-  <string name="keepGoing">Haltu áfram...</string>
-  <string name="puzzleFailed">Rangt svar</string>
-  <string name="butYouCanKeepTrying">En þú getur haldið áfram að reyna.</string>
   <string name="success">Árangur</string>
-  <string name="wasThisPuzzleAnyGood">Var þessi þraut góð?</string>
-  <string name="pleaseVotePuzzle">Hjálpaðu lichess að bæta sig með því að kjósa, notaðu upp og niður örvarnar:</string>
-  <string name="thankYou">Takk fyrir!</string>
-  <string name="ratingX">Stig: %s</string>
-  <string name="hidden">falið</string>
-  <plurals name="playedXTimes">
-    <item quantity="one">Teflt %s sinnum</item>
-    <item quantity="other">Teflt %s sinnum</item>
-  </plurals>
-  <string name="fromGameLink">Úr leik %s</string>
-  <string name="continueTraining">Halda áfram að æfa</string>
-  <string name="retryThisPuzzle">Reyna aftur við þessa þraut</string>
-  <string name="thisPuzzleIsCorrect">Þessi þraut er rétt og áhugaverð</string>
-  <string name="thisPuzzleIsWrong">Þessi þraut er röng eða leiðinleg</string>
   <plurals name="nbGamesInPlay">
     <item quantity="one">%s leikir í gangi</item>
     <item quantity="other">%s leikir í gangi</item>
@@ -519,6 +493,7 @@
   <string name="currentPassword">Núverandi lykilorð</string>
   <string name="newPassword">Nýtt lykilorð</string>
   <string name="newPasswordAgain">Nýtt lykilorð (aftur)</string>
+  <string name="newPasswordStrength">Styrkur aðgangsorðsins</string>
   <string name="privacy">Einkamál</string>
   <string name="letOtherPlayersFollowYou">Leyfa öðrum að fylgjast með þér</string>
   <string name="letOtherPlayersChallengeYou">Leyfa öðrum að skora á þig</string>
@@ -573,7 +548,7 @@
   <string name="learnMenu">Læra</string>
   <string name="practice">Æfa</string>
   <string name="community">Samfélag</string>
-  <string name="tools">Tól</string>
+  <string name="tools">Gögn</string>
   <string name="increment">Aukning</string>
   <string name="sharePGN">Deila PGN</string>
   <string name="playOnline">Spila tengt</string>
@@ -726,7 +701,6 @@
   <string name="error.unknown">Villa</string>
   <string name="custom">Sérsniðinn</string>
   <string name="notifications">Tilkynningar</string>
-  <string name="challenges">Áskoranir</string>
   <string name="perfRatingX">Skákstig: %s</string>
   <plurals name="nbSecondsToPlayTheFirstMove">
     <item quantity="one">%s sekúnda til að spila fyrsta leik</item>
@@ -771,14 +745,10 @@
   </plurals>
   <string name="opening">Byrjun</string>
   <string name="middlegame">Miðtafl</string>
-  <string name="registerToSendChallenges">Skráðu þig inn til að senda áskorarnir.</string>
-  <string name="youCannotChallengeX">Þú getur ekki skorað á %s.</string>
-  <string name="xDoesNotAcceptChallenges">%s tekur ekki við áskorunum.</string>
-  <string name="yourXRatingIsTooFarFromY">Það er of mikill munur á milli %1$sstiganna þína og skákstiganna %2$s.</string>
-  <string name="xOnlyAcceptsChallengesFromFriends">%s samþykkir eingöngu áskoranir frá vinum.</string>
   <string name="playX">Leika %s</string>
   <string name="sorry">Afsakaðu :(</string>
   <string name="weHadToTimeYouOutForAWhile">Við þurftum að setja þig í stutt leikbann.</string>
+  <string name="timeoutExpires">Leikbannið rennur út eftir: %s.</string>
   <string name="why">Afhverju?</string>
   <string name="howToAvoidThis">Hvernig er hægt að komast hjá þessu?</string>
   <string name="playEveryGame">Tefldu allar skákir sem þú byrjar.</string>
@@ -801,6 +771,7 @@
   <string name="important">Mikilvægt</string>
   <string name="yourQuestionMayHaveBeenAnswered">Spurningin þín gæti verið búin að fá svar %1$s</string>
   <string name="inTheFAQ">í FAQ-ið</string>
+  <string name="toReportSomeoneForCheatingOrBadBehavior">Til að tilkynna notenda fyrir svindl eða slæma hegðun, %1$s</string>
   <string name="youCannotPostYetPlaySomeGames">Þú mátt ekki pósta enn. Spilaðu nokkra leiki!</string>
   <string name="subscribe">Gerast áskrifandi</string>
   <string name="unsubscribe">Taka úr áskrift</string>

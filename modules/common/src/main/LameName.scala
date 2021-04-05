@@ -5,12 +5,12 @@ import scala.util.matching.Regex
 object LameName {
 
   def username(name: String): Boolean =
-    usernameRegex.find(name.replaceIf('_', "")) || lameTitlePrefix.matcher(name).lookingAt
+    usernameRegex.find(name.replaceIf('_', "")) || containsTitlePattern.matcher(name).lookingAt
 
   def tournament(name: String): Boolean = tournamentRegex find name
 
-  private val lameTitlePrefix =
-    "[Ww]?+[NCFIGl1L]M|(?i:w?+[ncfigl1])m[-_A-Z0-9]".r.pattern
+  private val containsTitlePattern =
+    "_*[Ww]?[NCFIG1Lncfigl][Mm]_+|_+[Ww]?[NCFIG1Lncfigl][Mm]_*|(?<![A-Z])[W]?[NCFIG1L][M]".r.pattern
 
   private val baseWords = List(
     "1488",

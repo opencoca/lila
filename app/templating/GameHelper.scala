@@ -84,6 +84,12 @@ trait GameHelper { self: I18nHelper with UserHelper with AiHelper with StringHel
 
   def shortClockName(clock: Clock.Config): Frag = raw(clock.show)
 
+  def shortClockName(game: Game)(implicit lang: Lang): Frag =
+    game.correspondenceClock
+      .map(c => trans.nbDays(c.daysPerTurn)) orElse
+      game.clock.map(_.config).map(shortClockName) getOrElse
+      trans.unlimited()
+
   def modeName(mode: Mode)(implicit lang: Lang): String =
     mode match {
       case Mode.Casual => trans.casual.txt()
@@ -92,9 +98,11 @@ trait GameHelper { self: I18nHelper with UserHelper with AiHelper with StringHel
 
   def modeNameNoCtx(mode: Mode): String = modeName(mode)(defaultLang)
 
-  def playerUsername(player: Player, withRating: Boolean = true, withTitle: Boolean = true): Frag =
+  def playerUsername(player: Player, withRating: Boolean = true, withTitle: Boolean = true)(implicit
+      lang: Lang
+  ): Frag =
     player.aiLevel.fold[Frag](
-      player.userId.flatMap(lightUser).fold[Frag](lila.user.User.anonymous) { user =>
+      player.userId.flatMap(lightUser).fold[Frag](trans.anonymous.txt()) { user =>
         frag(
           titleTag(user.title ifTrue withTitle map Title.apply),
           if (withRating) s"${user.name} (${lila.game.Namer ratingString player})"
@@ -102,7 +110,7 @@ trait GameHelper { self: I18nHelper with UserHelper with AiHelper with StringHel
         )
       }
     ) { level =>
-      raw(s"A.I. level $level")
+      frag(aiName(level))
     }
 
   def playerText(player: Player, withRating: Boolean = false) =
@@ -137,8 +145,9 @@ trait GameHelper { self: I18nHelper with UserHelper with AiHelper with StringHel
           (player.aiLevel, player.name) match {
             case (Some(level), _) => aiNameFrag(level, withRating)
             case (_, Some(name))  => name
-            case _                => User.anonymous
+            case _                => trans.anonymous.txt()
           },
+          player.rating.ifTrue(withRating) map { rating => s" ($rating)" },
           statusIcon
         )
       case Some(user) =>
@@ -153,7 +162,7 @@ trait GameHelper { self: I18nHelper with UserHelper with AiHelper with StringHel
               frag(" ", showRatingDiff(d))
             },
             engine option span(
-              cls := "engine_mark",
+              cls := "tos_violation",
               title := trans.thisAccountViolatedTos.txt()
             )
           ),
@@ -228,7 +237,7 @@ trait GameHelper { self: I18nHelper with UserHelper with AiHelper with StringHel
       tv: Boolean = false
   )(implicit ctx: Context): String = {
     val owner = ownerLink ?? ctx.me.flatMap(game.player)
-    if (tv) routes.Tv.index()
+    if (tv) routes.Tv.index
     else
       owner.fold(routes.Round.watcher(game.id, color.name)) { o =>
         routes.Round.player(game fullIdOf o.color)
@@ -237,12 +246,12 @@ trait GameHelper { self: I18nHelper with UserHelper with AiHelper with StringHel
 
   def gameLink(pov: Pov)(implicit ctx: Context): String = gameLink(pov.game, pov.color)
 
-  def challengeTitle(c: lila.challenge.Challenge) = {
+  def challengeTitle(c: lila.challenge.Challenge)(implicit lang: Lang) = {
     val speed = c.clock.map(_.config).fold(chess.Speed.Correspondence.name) { clock =>
       s"${chess.Speed(clock).name} (${clock.show})"
     }
     val variant = c.variant.exotic ?? s" ${c.variant.name}"
-    val challenger = c.challengerUser.fold(User.anonymous) { reg =>
+    val challenger = c.challengerUser.fold(trans.anonymous.txt()) { reg =>
       s"${usernameOrId(reg.id)} (${reg.rating.show})"
     }
     val players =
@@ -254,7 +263,7 @@ trait GameHelper { self: I18nHelper with UserHelper with AiHelper with StringHel
     s"$speed$variant ${c.mode.name} Chess • $players"
   }
 
-  def challengeOpenGraph(c: lila.challenge.Challenge) =
+  def challengeOpenGraph(c: lila.challenge.Challenge)(implicit lang: Lang) =
     lila.app.ui.OpenGraph(
       title = challengeTitle(c),
       url = s"$netBaseUrl${routes.Round.watcher(c.id, chess.White.name).url}",

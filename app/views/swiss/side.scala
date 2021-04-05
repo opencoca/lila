@@ -13,7 +13,12 @@ object side {
 
   private val separator = " • "
 
-  def apply(s: Swiss, verdicts: SwissCondition.All.WithVerdicts, chat: Boolean)(implicit
+  def apply(
+      s: Swiss,
+      verdicts: SwissCondition.All.WithVerdicts,
+      streamers: List[lila.user.User.ID],
+      chat: Boolean
+  )(implicit
       ctx: Context
   ) =
     frag(
@@ -37,7 +42,7 @@ object side {
               span(cls := "swiss__meta__round")(s"${s.round}/${s.settings.nbRounds}"),
               " rounds",
               separator,
-              a(href := routes.Swiss.home())("Swiss"),
+              a(href := routes.Swiss.home)("Swiss"),
               (isGranted(_.ManageTournament) || (ctx.userId.has(s.createdBy) && !s.isFinished)) option frag(
                 " ",
                 a(href := routes.Swiss.edit(s.id.value), title := "Edit tournament")(iconTag("%"))
@@ -87,6 +92,9 @@ object side {
           )
         else br,
         absClientDateTime(s.startsAt)
+      ),
+      streamers.nonEmpty option div(cls := "context-streamers")(
+        streamers map views.html.streamer.bits.contextual
       ),
       chat option views.html.chat.frag
     )

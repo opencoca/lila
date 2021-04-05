@@ -9,6 +9,7 @@ import lila.app._
 import lila.security.SecurityForm.Reopen
 import lila.user.{ User => UserModel, TotpSecret }
 import views.html
+import lila.api.AnnounceStore
 
 final class Account(
     env: Env,
@@ -31,8 +32,17 @@ final class Account(
       FormFuResult(env.user.forms.profile) { err =>
         fuccess(html.account.profile(me, err))
       } { profile =>
-        env.user.repo.setProfile(me.id, profile) inject
-          Redirect(routes.Account.profile()).flashSuccess
+        profile.bio
+          .exists(env.security.spam.detect)
+          .option("profile.bio" -> ~profile.bio)
+          .orElse {
+            profile.links
+              .exists(env.security.spam.detect)
+              .option("profile.links" -> ~profile.links)
+          }
+          .?? { case (resource, text) =>
+            env.report.api.autoCommFlag(lila.report.Suspect(me).id, resource, text)
+          } >> env.user.repo.setProfile(me.id, profile) inject Redirect(routes.Account.profile).flashSuccess
       }
     }
 
@@ -73,6 +83,7 @@ final class Account(
                     .add("kid" -> me.kid)
                     .add("troll" -> me.marks.troll)
                     .add("playban" -> playban)
+                    .add("announce" -> AnnounceStore.get.map(_.json))
                 }.withHeaders(CACHE_CONTROL -> s"max-age=15")
             }
         }
@@ -136,7 +147,7 @@ final class Account(
             fuccess(html.account.passwd(err))
           } { data =>
             env.user.authenticator.setPassword(me.id, UserModel.ClearPassword(data.newPasswd1)) >>
-              refreshSessionId(me, Redirect(routes.Account.passwd()).flashSuccess)
+              refreshSessionId(me, Redirect(routes.Account.passwd).flashSuccess)
           }
         }
       }(rateLimitedFu)
@@ -188,7 +199,7 @@ final class Account(
             val newUserEmail = lila.security.EmailConfirm.UserEmail(me.username, email.acceptable)
             auth.EmailConfirmRateLimit(newUserEmail, ctx.req) {
               env.security.emailChange.send(me, newUserEmail.email) inject
-                Redirect(routes.Account.email()).flashSuccess {
+                Redirect(routes.Account.email).flashSuccess {
                   lila.i18n.I18nKeys.checkYourEmail.txt()
                 }
             }(rateLimitedFu)
@@ -208,7 +219,7 @@ final class Account(
                 if (prevEmail.exists(_.isNoReply))
                   Some(_ => Redirect(routes.User.show(user.username)).flashSuccess)
                 else
-                  Some(_ => Redirect(routes.Account.email()).flashSuccess)
+                  Some(_ => Redirect(routes.Account.email).flashSuccess)
             )
         }
       }
@@ -257,7 +268,7 @@ final class Account(
             fuccess(html.account.twoFactor.setup(me, err))
           } { data =>
             env.user.repo.setupTwoFactor(me.id, TotpSecret(data.secret)) >>
-              refreshSessionId(me, Redirect(routes.Account.twoFactor()).flashSuccess)
+              refreshSessionId(me, Redirect(routes.Account.twoFactor).flashSuccess)
           }
         }
       }(rateLimitedFu)
@@ -272,7 +283,7 @@ final class Account(
             fuccess(html.account.twoFactor.disable(me, err))
           } { _ =>
             env.user.repo.disableTwoFactor(me.id) inject
-              Redirect(routes.Account.twoFactor()).flashSuccess
+              Redirect(routes.Account.twoFactor).flashSuccess
           }
         }
       }(rateLimitedFu)
@@ -332,7 +343,7 @@ final class Account(
               _ =>
                 env.user.repo.setKid(me, getBool("v")) >>
                   negotiate(
-                    html = Redirect(routes.Account.kid()).flashSuccess.fuccess,
+                    html = Redirect(routes.Account.kid).flashSuccess.fuccess,
                     api = _ => jsonOkResult.fuccess
                   )
             )
@@ -359,7 +370,7 @@ final class Account(
   def signout(sessionId: String) =
     Auth { implicit _ctx => me =>
       if (sessionId == "all")
-        refreshSessionId(me, Redirect(routes.Account.security()).flashSuccess)
+        refreshSessionId(me, Redirect(routes.Account.security).flashSuccess)
       else
         env.security.store.closeUserAndSessionId(me.id, sessionId) >>
           env.push.webSubscriptionApi.unsubscribeBySession(sessionId)
@@ -380,25 +391,29 @@ final class Account(
   def reopenApply =
     OpenBody { implicit ctx =>
       implicit val req = ctx.body
-      env.security.forms.reopen.form
-        .bindFromRequest()
-        .fold(
-          err => BadRequest(renderReopen(err.some, none)).fuccess,
-          data =>
-            env.security.reopen
-              .prepare(data.username, data.realEmail, env.mod.logApi.hasModClose) flatMap {
-              case Left((code, msg)) =>
-                lila.mon.user.auth.reopenRequest(code).increment()
-                BadRequest(renderReopen(none, msg.some)).fuccess
-              case Right(user) =>
-                auth.MagicLinkRateLimit(user, data.realEmail, ctx.req) {
-                  lila.mon.user.auth.reopenRequest("success").increment()
-                  env.security.reopen.send(user, data.realEmail) inject Redirect(
-                    routes.Account.reopenSent(data.realEmail.value)
-                  )
-                }(rateLimitedFu)
-            }
-        )
+      env.security.recaptcha.verify() flatMap {
+        _.ok ?? {
+          env.security.forms.reopen.form
+            .bindFromRequest()
+            .fold(
+              err => BadRequest(renderReopen(err.some, none)).fuccess,
+              data =>
+                env.security.reopen
+                  .prepare(data.username, data.realEmail, env.mod.logApi.hasModClose) flatMap {
+                  case Left((code, msg)) =>
+                    lila.mon.user.auth.reopenRequest(code).increment()
+                    BadRequest(renderReopen(none, msg.some)).fuccess
+                  case Right(user) =>
+                    auth.MagicLinkRateLimit(user, data.realEmail, ctx.req) {
+                      lila.mon.user.auth.reopenRequest("success").increment()
+                      env.security.reopen.send(user, data.realEmail) inject Redirect(
+                        routes.Account.reopenSent(data.realEmail.value)
+                      )
+                    }(rateLimitedFu)
+                }
+            )
+        }
+      }
     }
 
   def reopenSent(@nowarn("cat=unused") email: String) =

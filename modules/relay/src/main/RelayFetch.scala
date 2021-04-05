@@ -7,19 +7,24 @@ import io.lemonlabs.uri.Url
 import org.joda.time.DateTime
 import play.api.libs.json._
 import play.api.libs.ws.StandaloneWSClient
-import Relay.Sync.Upstream
+import Relay.Sync.{ Upstream, UpstreamIds, UpstreamUrl }
 import scala.concurrent.duration._
 
 import lila.base.LilaException
 import lila.memo.CacheApi
 import lila.study.MultiPgn
 import lila.tree.Node.Comments
+import lila.game.{ Game, GameRepo, PgnDump }
+import lila.round.GameProxyRepo
 
 final private class RelayFetch(
     sync: RelaySync,
     api: RelayApi,
-    slackApi: lila.slack.SlackApi,
+    slackApi: lila.irc.SlackApi,
     formatApi: RelayFormatApi,
+    gameRepo: GameRepo,
+    pgnDump: PgnDump,
+    gameProxy: GameProxyRepo,
     ws: StandaloneWSClient
 ) extends Actor {
 
@@ -105,7 +110,7 @@ final private class RelayFetch(
   def continueRelay(r: Relay): Relay =
     r.sync.upstream.fold(r) { upstream =>
       val seconds =
-        if (r.sync.log.alwaysFails && !upstream.isLocal) {
+        if (r.sync.log.alwaysFails && !upstream.local) {
           r.sync.log.events.lastOption
             .filterNot(_.isTimeout)
             .flatMap(_.error)
@@ -113,7 +118,10 @@ final private class RelayFetch(
             slackApi.broadcastError(r.id.value, r.name, error)
           }
           60
-        } else r.sync.delay getOrElse 7
+        } else
+          r.sync.delay getOrElse {
+            if (upstream.local) 3 else 6
+          }
       r.withSync {
         _.copy(
           nextAt = DateTime.now plusSeconds {
@@ -126,31 +134,51 @@ final private class RelayFetch(
   import com.github.benmanes.caffeine.cache.Cache
   import RelayFetch.GamesSeenBy
 
+  private val gameIdsUpstreamPgnFlags = PgnDump.WithFlags(
+    clocks = true,
+    moves = true,
+    tags = true,
+    evals = false,
+    opening = false,
+    literate = false,
+    pgnInJson = false,
+    delayMoves = true
+  )
+
   private def fetchGames(relay: Relay): Fu[RelayGames] =
-    relay.sync.upstream ?? { upstream =>
-      cache.asMap
-        .compute(
-          upstream,
-          (_, v) =>
-            Option(v) match {
-              case Some(GamesSeenBy(games, seenBy)) if !seenBy(relay.id) =>
-                GamesSeenBy(games, seenBy + relay.id)
-              case _ =>
-                GamesSeenBy(doFetch(upstream, RelayFetch.maxChapters(relay)), Set(relay.id))
-            }
-        )
-        .games
+    relay.sync.upstream ?? {
+      case UpstreamIds(ids) =>
+        gameRepo.gamesFromSecondary(ids) flatMap
+          gameProxy.upgradeIfPresent flatMap
+          gameRepo.withInitialFens flatMap {
+            _.map { case (game, fen) =>
+              pgnDump(game, fen, gameIdsUpstreamPgnFlags).dmap(_.render)
+            }.sequenceFu dmap MultiPgn.apply
+          } flatMap RelayFetch.multiPgnToGames.apply
+      case url: UpstreamUrl =>
+        cache.asMap
+          .compute(
+            url,
+            (_, v) =>
+              Option(v) match {
+                case Some(GamesSeenBy(games, seenBy)) if !seenBy(relay.id) =>
+                  GamesSeenBy(games, seenBy + relay.id)
+                case _ =>
+                  GamesSeenBy(doFetchUrl(url, RelayFetch.maxChapters(relay)), Set(relay.id))
+              }
+          )
+          .games
     }
 
   // The goal of this is to make sure that an upstream used by several broadcast
   // is only pulled from as many times as necessary, and not more.
-  private val cache: Cache[Upstream, GamesSeenBy] = CacheApi.scaffeineNoScheduler
+  private val cache: Cache[UpstreamUrl, GamesSeenBy] = CacheApi.scaffeineNoScheduler
     .initialCapacity(4)
     .maximumSize(16)
-    .build[Upstream, GamesSeenBy]()
+    .build[UpstreamUrl, GamesSeenBy]()
     .underlying
 
-  private def doFetch(upstream: Upstream, max: Int): Fu[RelayGames] = {
+  private def doFetchUrl(upstream: UpstreamUrl, max: Int): Fu[RelayGames] = {
     import RelayFetch.DgtJson._
     formatApi get upstream.withRound flatMap {
       case RelayFormat.SingleFile(doc) =>

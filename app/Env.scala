@@ -57,7 +57,7 @@ final class Env(
     val insight: lila.insight.Env,
     val push: lila.push.Env,
     val perfStat: lila.perfStat.Env,
-    val slack: lila.slack.Env,
+    val irc: lila.irc.Env,
     val challenge: lila.challenge.Env,
     val explorer: lila.explorer.Env,
     val fishnet: lila.fishnet.Env,
@@ -79,6 +79,8 @@ final class Env(
     val evalCache: lila.evalCache.Env,
     val rating: lila.rating.Env,
     val swiss: lila.swiss.Env,
+    val storm: lila.storm.Env,
+    val racer: lila.racer.Env,
     val lilaCookie: lila.common.LilaCookie,
     val net: NetConfig,
     val controllerComponents: ControllerComponents
@@ -126,7 +128,7 @@ final class Env(
   lazy val gamePaginator = wire[mashup.GameFilterMenu.PaginatorBuilder]
   lazy val pageCache     = wire[http.PageCache]
 
-  private val tryDailyPuzzle: lila.puzzle.Daily.Try = () =>
+  private val tryDailyPuzzle: lila.puzzle.DailyPuzzle.Try = () =>
     Future {
       puzzle.daily.get
     }.flatMap(identity)
@@ -239,7 +241,7 @@ final class EnvBoot(
   lazy val insight: lila.insight.Env         = wire[lila.insight.Env]
   lazy val push: lila.push.Env               = wire[lila.push.Env]
   lazy val perfStat: lila.perfStat.Env       = wire[lila.perfStat.Env]
-  lazy val slack: lila.slack.Env             = wire[lila.slack.Env]
+  lazy val irc: lila.irc.Env                 = wire[lila.irc.Env]
   lazy val challenge: lila.challenge.Env     = wire[lila.challenge.Env]
   lazy val explorer: lila.explorer.Env       = wire[lila.explorer.Env]
   lazy val fishnet: lila.fishnet.Env         = wire[lila.fishnet.Env]
@@ -261,6 +263,8 @@ final class EnvBoot(
   lazy val evalCache: lila.evalCache.Env     = wire[lila.evalCache.Env]
   lazy val rating: lila.rating.Env           = wire[lila.rating.Env]
   lazy val swiss: lila.swiss.Env             = wire[lila.swiss.Env]
+  lazy val storm: lila.storm.Env             = wire[lila.storm.Env]
+  lazy val racer: lila.racer.Env             = wire[lila.racer.Env]
   lazy val api: lila.api.Env                 = wire[lila.api.Env]
   lazy val lilaCookie                        = wire[lila.common.LilaCookie]
 

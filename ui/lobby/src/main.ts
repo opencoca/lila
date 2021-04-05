@@ -1,18 +1,15 @@
-import { init } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode'
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
+import { init, VNode, classModule, attributesModule } from 'snabbdom';
 import { Chessground } from 'chessground';
 import { LobbyOpts, Tab } from './interfaces';
 import LobbyController from './ctrl';
 
-export const patch = init([klass, attributes]);
+export const patch = init([classModule, attributesModule]);
 
+// eslint-disable-next-line no-duplicate-imports
 import makeCtrl from './ctrl';
 import view from './view/main';
 
 export default function main(opts: LobbyOpts) {
-
   let vnode: VNode, ctrl: LobbyController;
 
   function redraw() {
@@ -36,7 +33,7 @@ export default function main(opts: LobbyOpts) {
     enterPool: ctrl.enterPool,
     leavePool: ctrl.leavePool,
     setup: ctrl.setup,
-    redraw: ctrl.redraw
+    redraw: ctrl.redraw,
   };
 }
 

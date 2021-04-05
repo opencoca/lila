@@ -2,6 +2,7 @@ package controllers
 
 import play.api.libs.json._
 import play.api.mvc._
+import scala.concurrent.duration._
 import views._
 
 import lila.api.Context
@@ -314,7 +315,7 @@ final class Round(
       OptionResult(env.game.gameRepo game id) { game =>
         Redirect(
           "%s?fen=%s#%s".format(
-            routes.Lobby.home(),
+            routes.Lobby.home,
             get("fen") | (chess.format.Forsyth >> game.chess).value,
             mode
           )
@@ -327,11 +328,11 @@ final class Round(
       OptionFuRedirect(env.round.proxyRepo.pov(fullId)) { pov =>
         if (isTheft(pov)) {
           lila.log("round").warn(s"theft resign $fullId ${HTTPRequest.ipAddress(ctx.req)}")
-          fuccess(routes.Lobby.home())
+          fuccess(routes.Lobby.home)
         } else {
           env.round resign pov
           import scala.concurrent.duration._
-          akka.pattern.after(500.millis, env.system.scheduler)(fuccess(routes.Lobby.home()))
+          akka.pattern.after(500.millis, env.system.scheduler)(fuccess(routes.Lobby.home))
         }
       }
     }
@@ -349,5 +350,18 @@ final class Round(
       OptionOk(env.round.proxyRepo.povIfPresent(fullId) orElse env.game.gameRepo.pov(fullId))(
         html.game.mini(_)
       )
+    }
+
+  def apiAddTime(anyId: String, seconds: Int) =
+    Scoped(_.Challenge.Write) { implicit req => me =>
+      import lila.round.actorApi.round.Moretime
+      if (seconds < 1 || seconds > 86400) BadRequest.fuccess
+      else
+        env.round.proxyRepo.game(lila.game.Game takeGameId anyId) map {
+          _.flatMap { Pov(_, me) }.?? { pov =>
+            env.round.tellRound(pov.gameId, Moretime(pov.typedPlayerId, seconds.seconds))
+            jsonOkResult
+          }
+        }
     }
 }

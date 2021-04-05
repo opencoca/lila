@@ -53,8 +53,9 @@ final class Swiss(
               _ <- chat ?? { c =>
                 env.user.lightUserApi.preloadMany(c.chat.userIds)
               }
+              streamers  <- streamerCache get swiss.id
               isLocalMod <- canChat ?? canModChat(swiss)
-            } yield Ok(html.swiss.show(swiss, verdicts, json, chat, isLocalMod))
+            } yield Ok(html.swiss.show(swiss, verdicts, json, chat, streamers, isLocalMod))
           },
           api = _ =>
             swissOption.fold(notFoundJson("No such swiss tournament")) { swiss =>
@@ -81,6 +82,18 @@ final class Swiss(
   private def isCtxInTheTeam(teamId: lila.team.Team.ID)(implicit ctx: Context) =
     ctx.userId.??(u => env.team.cached.teamIds(u).dmap(_ contains teamId))
 
+  def round(id: String, round: Int) =
+    Open { implicit ctx =>
+      OptionFuResult(env.swiss.api.byId(SwissId(id))) { swiss =>
+        (round > 0 && round <= swiss.round.value).option(lila.swiss.SwissRound.Number(round)) ?? { r =>
+          val page = getInt("page").filter(0.<)
+          env.swiss.roundPager(swiss, r, page | 0) map { pager =>
+            Ok(html.swiss.show.round(swiss, r, pager))
+          }
+        }
+      }
+    }
+
   def form(teamId: String) =
     Open { implicit ctx =>
       Ok(html.swiss.form.create(env.swiss.forms.create, teamId)).fuccess
@@ -92,7 +105,7 @@ final class Swiss(
         case false => notFound
         case _ =>
           env.swiss.forms.create
-            .bindFromRequest()(ctx.body)
+            .bindFromRequest()(ctx.body, formBinding)
             .fold(
               err => BadRequest(html.swiss.form.create(err, teamId)).fuccess,
               data =>
@@ -274,4 +287,15 @@ final class Swiss(
   private def canModChat(swiss: SwissModel)(implicit ctx: Context): Fu[Boolean] =
     if (isGranted(_.ChatTimeout)) fuTrue
     else ctx.userId ?? { env.team.cached.isLeader(swiss.teamId, _) }
+
+  private val streamerCache =
+    env.memo.cacheApi[SwissModel.Id, List[lila.user.User.ID]](64, "swiss.streamers") {
+      _.refreshAfterWrite(15.seconds)
+        .maximumSize(64)
+        .buildAsyncFuture { id =>
+          env.streamer.liveStreamApi.all.flatMap { streams =>
+            env.swiss.api.filterPlaying(id, streams.streams.map(_.streamer.userId))
+          }
+        }
+    }
 }

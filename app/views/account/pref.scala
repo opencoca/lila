@@ -45,7 +45,7 @@ object pref {
       val booleanChoices = Seq(0 -> trans.no.txt(), 1 -> trans.yes.txt())
       div(cls := "account box box-pad")(
         h1(bits.categName(categ)),
-        postForm(cls := "autosubmit", action := routes.Pref.formApply())(
+        postForm(cls := "autosubmit", action := routes.Pref.formApply)(
           categFieldset(PrefCateg.GameDisplay, categ)(
             setting(
               pieceAnimation(),
@@ -144,13 +144,13 @@ object pref {
               radios(form("behavior.keyboardMove"), booleanChoices)
             ),
             setting(
-              "Snap arrows to valid moves",
+              snapArrowsToValidMoves(),
               radios(form("behavior.arrowSnap"), booleanChoices)
             )(cls := "arrow-snap"),
             setting(
-              "Say \"Good game, well played\" upon defeat or draw",
+              sayGgWpAfterLosingOrDrawing(),
               radios(form("behavior.courtesy"), booleanChoices)
-            )(cls := "arrow-snap")
+            )
           ),
           categFieldset(PrefCateg.Privacy, categ)(
             setting(

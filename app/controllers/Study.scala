@@ -18,7 +18,8 @@ import views._
 
 final class Study(
     env: Env,
-    userAnalysisC: => UserAnalysis
+    userAnalysisC: => UserAnalysis,
+    apiC: => Api
 ) extends LilaController(env) {
 
   def search(text: String, page: Int) =
@@ -202,7 +203,6 @@ final class Study(
       (study, resetToChapter) <- env.study.api.resetIfOld(sc.study, chapters)
       chapter = resetToChapter | sc.chapter
       _ <- env.user.lightUserApi preloadMany study.members.ids.toList
-      _   = if (HTTPRequest isSynchronousHttp ctx.req) env.study.studyRepo.incViews(study)
       pov = userAnalysisC.makePov(chapter.root.fen.some, chapter.setup.variant)
       analysis <- chapter.serverEval.exists(_.done) ?? env.analyse.analyser.byId(chapter.id.value)
       division = analysis.isDefined option env.study.serverEvalMerger.divisionOf(chapter)
@@ -456,6 +456,40 @@ final class Study(
       }
     }
 
+  def export(username: String) =
+    OpenOrScoped()(
+      open = ctx => handleExport(username, ctx.me, ctx.req),
+      scoped = req => me => handleExport(username, me.some, req)
+    )
+
+  private def handleExport(
+      username: String,
+      me: Option[lila.user.User],
+      req: RequestHeader
+  ) = {
+    val userId = lila.user.User normalize username
+    val flags  = requestPgnFlags(req)
+    val isMe   = me.exists(_.id == userId)
+    apiC
+      .GlobalConcurrencyLimitPerIpAndUserOption(req, me) {
+        env.study.studyRepo
+          .sourceByOwner(userId, isMe)
+          .flatMapConcat(env.study.pgnDump(_, flags))
+          .withAttributes(
+            akka.stream.ActorAttributes.supervisionStrategy(akka.stream.Supervision.resumingDecider)
+          )
+          .throttle(30, 1 second)
+      } { source =>
+        Ok.chunked(source)
+          .withHeaders(
+            noProxyBufferHeader,
+            CONTENT_DISPOSITION -> s"attachment; filename=${username}-${if (isMe) "all" else "public"}-studies.pgn"
+          )
+          .as(pgnContentType)
+      }
+      .fuccess
+  }
+
   private def requestPgnFlags(req: RequestHeader) =
     lila.study.PgnDump.WithFlags(
       comments = getBoolOpt("comments", req) | true,
@@ -484,9 +518,7 @@ final class Study(
     Open { implicit ctx =>
       OptionFuResult(env.study.api byId id) { study =>
         CanViewResult(study) {
-          env.study.multiBoard.json(study.id, page, getBool("playing")) map { json =>
-            Ok(json) as JSON
-          }
+          env.study.multiBoard.json(study.id, page, getBool("playing")) map JsonOk
         }
       }
     }
@@ -497,9 +529,7 @@ final class Study(
         case None => BadRequest("No search term provided").fuccess
         case Some(term) =>
           import lila.study.JsonView._
-          env.study.topicApi.findLike(term, get("user", req)) map { topics =>
-            Ok(Json.toJson(topics)) as JSON
-          }
+          env.study.topicApi.findLike(term, get("user", req)) map { JsonOk(_) }
       }
     }
 
@@ -518,10 +548,10 @@ final class Study(
       lila.study.StudyForm.topicsForm
         .bindFromRequest()
         .fold(
-          _ => Redirect(routes.Study.topics()).fuccess,
+          _ => Redirect(routes.Study.topics).fuccess,
           topics =>
             env.study.topicApi.userTopics(me, topics) inject
-              Redirect(routes.Study.topics())
+              Redirect(routes.Study.topics)
         )
     }
 
