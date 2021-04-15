@@ -8,8 +8,7 @@ private object Dictionary {
 
   def en = dict("""
 (f+|ph)(u{1,}|a{1,}|e{1,})c?k(er|r|u|k|ed|d|t|ing?|ign|en|tard?|face|off?|)
-(f|ph)ag
-(f|ph)agg?ot
+(f|ph)agg?(ot|)
 cock(suc?ker|)
 [ck]um(shot|)
 [ck]unt(ing|)
@@ -25,8 +24,7 @@ aus?c?hwitz
 bastard?
 be[ea]+ch
 bit?ch
-blow
-blowjob
+blow(job|)
 blumpkin
 bollock
 boner
@@ -39,8 +37,7 @@ cheat(ing|ed|er|s|)
 chess(|-|_)bot(.?com)?
 chicken
 chink
-clit
-clitoris
+clit(oris|)
 clown
 cock
 condom
@@ -65,13 +62,14 @@ hitler+
 homm?o(sexual|)
 honkey
 hooker
+(ho?pe (yo)?u(r family)? die|dies? irl)
 horny
 humping
 idiot
 incest
 jerk
 jizz?(um|)
-kill (yo)?urself
+(kill|hang) (yo)?ur(self| family)
 kys
 labia
 lamer?
@@ -80,27 +78,25 @@ loo?ser
 masturbat(e|ion|ing)
 milf
 molest
-(?<!i'?m (such )?(an? )?)moron
-motherfuc?k(er|)
-mothers?
+moron
+mother(fuc?k(er|)|)
 mthrfckr
 nazi
 nigg?(er|a|ah)
 nonce
-(?<!i'?m (such )?(an? )?)noob
+noo+b
 nutsac?k
-pa?edo
-pa?edo(f|ph)ile
+pa?edo((f|ph)ile|)
 paki
 pathetic
-pederast
-pen(1|i)s
+pa?ederast
+penis
 pig
-pimps?
+pimp
 piss
 poof
 poon
-poop(face|)
+poo+p(face|)
 porn
 pric?k
 prostitute
@@ -177,7 +173,7 @@ p[ie]d[aoe]?r
 пид(о|а)р(а|ы|у|ам|асы?|асам?)
 пидр
 поебень
-сук(а|и|е|у|ам)
+[сc][уy][кk](а|a|и|е|у|ам)
 у(ё|е)бищ(е|а|ам)
 ху(ё|е)(во|сос)
 хуит(а|е|ы)
@@ -187,7 +183,9 @@ p[ie]d[aoe]?r
 
   def es = dict("""
 cabr[oó]na?
+chupame
 est[úu]pid[ao]
+imbecil
 maric[oó]n
 mierda
 pendejo
@@ -218,7 +216,9 @@ gaa?nd
 
   def fr = dict("""
 fdp
-trich(eurs|)
+pd
+triche
+tricheur
 """)
 
   def de = dict("""
@@ -240,23 +240,23 @@ wichser
 """)
 
   def tr = dict("""
-am[iı]na (koyay[iı]m|koydum)
+am[iı]na (koyay[iı]m|koy?dum)
 amc[iı]k
 anan[iı]n am[iı]
-ananizi s[ii̇]k[ii̇]y[ii̇]m
+ann?an[iı](zi)? s[ii̇]k[eii̇]y[ii̇]m
 aptal
 beyinsiz
 bok yedin
 gerizekal[iı]
 ibne
 ka[sş]ar
-orospu
+orospu( ([çc]o[çc]u[ğg]?u|evlad[ıi]))?
 piç(lik)?
 pu[sş]t
 salak
-sikecem
+s[ii̇]kecem
 sikiyonuz
-siktir
+s[ii̇]kt[ii̇]r
 yarra[gğ][iı] yediniz
 """)
 

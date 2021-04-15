@@ -55,6 +55,8 @@ case class User(
 
   def titleUsername = title.fold(username)(t => s"$t $username")
 
+  def hasVariantRating = PerfType.variants.exists(perfs.apply(_).nonEmpty)
+
   def titleUsernameWithBestRating =
     title.fold(usernameWithBestRating) { t =>
       s"$t $usernameWithBestRating"
@@ -163,6 +165,7 @@ object User {
   val anonymous                    = "Anonymous"
   val lichessId                    = "lichess"
   val broadcasterId                = "broadcaster"
+  val ghostId                      = "ghost"
   def isOfficial(username: String) = normalize(username) == lichessId || normalize(username) == broadcasterId
 
   val seenRecently = 2.minutes
@@ -219,19 +222,23 @@ object User {
   implicit def playTimeHandler = reactivemongo.api.bson.Macros.handler[PlayTime]
 
   // what existing usernames are like
-  val historicalUsernameRegex = """(?i)[a-z0-9][\w-]{0,28}[a-z0-9]""".r
+  val historicalUsernameRegex = "(?i)[a-z0-9][a-z0-9_-]{0,28}[a-z0-9]".r
   // what new usernames should be like -- now split into further parts for clearer error messages
-  val newUsernameRegex   = """(?i)[a-z][\w-]{0,28}[a-z0-9]""".r
-  val newUsernamePrefix  = """(?i)[a-z].*""".r
-  val newUsernameSuffix  = """(?i).*[a-z0-9]""".r
-  val newUsernameChars   = """(?i)[\w-]*""".r
-  val newUsernameLetters = """(?i)^([a-z0-9][\w-]?)+$""".r
+  val newUsernameRegex   = "(?i)[a-z][a-z0-9_-]{0,28}[a-z0-9]".r
+  val newUsernamePrefix  = "(?i)^[a-z].*".r
+  val newUsernameSuffix  = "(?i).*[a-z0-9]$".r
+  val newUsernameChars   = "(?i)^[a-z0-9_-]*$".r
+  val newUsernameLetters = "(?i)^([a-z0-9][_-]?)+$".r
 
-  def couldBeUsername(str: User.ID) = historicalUsernameRegex.matches(str)
+  def couldBeUsername(str: User.ID) = noGhost(str) && historicalUsernameRegex.matches(str)
 
   def normalize(username: String) = username.toLowerCase
 
   def validateId(name: String): Option[User.ID] = couldBeUsername(name) option normalize(name)
+
+  def isGhost(name: String) = normalize(name) == ghostId || name.headOption.has('!')
+
+  def noGhost(name: String) = !isGhost(name)
 
   object BSONFields {
     val id                    = "_id"
@@ -262,6 +269,7 @@ object User {
     val totpSecret            = "totp"
     val changedCase           = "changedCase"
     val marks                 = "marks"
+    val eraseAt               = "eraseAt"
     val erasedAt              = "erasedAt"
     val blind                 = "blind"
   }

@@ -126,9 +126,10 @@ final class Auth(
                           case None => InternalServerError("Authentication error").fuccess
                           case Some(u) if u.disabled =>
                             negotiate(
-                              html =
-                                if (u.marks.dirty) authenticateAppealUser(u, redirectTo)
-                                else redirectTo(routes.Account.reopen.url).fuccess,
+                              html = (u.marks.dirty ?? env.mod.logApi.closedByMod(u)) flatMap {
+                                case true => authenticateAppealUser(u, redirectTo)
+                                case _    => redirectTo(routes.Account.reopen.url).fuccess
+                              },
                               api = _ => Unauthorized(jsonError("This account is closed.")).fuccess
                             )
                           case Some(u) =>
@@ -334,8 +335,8 @@ final class Auth(
   def passwordResetApply =
     OpenBody { implicit ctx =>
       implicit val req = ctx.body
-      env.security.recaptcha.verify() flatMap {
-        _.ok ?? {
+      env.security.hcaptcha.verify() flatMap { captcha =>
+        if (captcha.ok)
           forms.passwordReset.form
             .bindFromRequest()
             .fold(
@@ -352,7 +353,7 @@ final class Auth(
                     Redirect(routes.Auth.passwordResetSent(data.realEmail.conceal)).fuccess
                 }
             )
-        }
+        else BadRequest(renderPasswordReset(none, fail = true)).fuccess
       }
     }
 
@@ -415,8 +416,8 @@ final class Auth(
   def magicLinkApply =
     OpenBody { implicit ctx =>
       implicit val req = ctx.body
-      env.security.recaptcha.verify() flatMap {
-        _.ok ?? {
+      env.security.hcaptcha.verify() flatMap { captcha =>
+        if (captcha.ok)
           forms.magicLink.form
             .bindFromRequest()
             .fold(
@@ -436,7 +437,8 @@ final class Auth(
                       Redirect(routes.Auth.magicLinkSent(data.realEmail.value)).fuccess
                   }
             )
-        }
+        else
+          BadRequest(renderMagicLink(none, fail = true)).fuccess
       }
     }
 

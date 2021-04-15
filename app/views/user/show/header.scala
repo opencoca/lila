@@ -22,14 +22,13 @@ object header {
   )(implicit ctx: Context) =
     frag(
       div(cls := "box__top user-show__header")(
-        h1(cls := s"user-link ${if (isOnline(u.id)) "online" else "offline"}")(
-          if (u.isPatron)
-            frag(
-              a(href := routes.Plan.index)(patronIcon),
-              userSpan(u, withPowerTip = false, withOnline = false)
-            )
-          else userSpan(u, withPowerTip = false)
-        ),
+        if (u.isPatron)
+          h1(cls := s"user-link ${if (isOnline(u.id)) "online" else "offline"}")(
+            a(href := routes.Plan.index)(patronIcon),
+            userSpan(u, withPowerTip = false, withOnline = false)
+          )
+        else
+          h1(userSpan(u, withPowerTip = false)),
         div(
           cls := List(
             "trophies" -> true,
@@ -52,9 +51,6 @@ object header {
           a(cls := "nm-item", href := routes.Relation.followers(u.username))(
             splitNumber(trans.nbFollowers.pluralSame(info.nbFollowers))
           ),
-          info.nbBlockers.map { nb =>
-            a(cls := "nm-item")(splitNumber(s"$nb Blockers"))
-          },
           u.noBot option a(
             href := routes.UserTournament.path(u.username, "recent"),
             cls := "nm-item tournament_stats",
@@ -114,7 +110,8 @@ object header {
               cls := "btn-rack__btn",
               href := routes.Game.exportByUser(u.username),
               titleOrText(trans.exportGames.txt()),
-              dataIcon := "x"
+              dataIcon := "x",
+              downloadAttr
             )
           else
             (ctx.isAuth && ctx.noKid) option a(
@@ -178,8 +175,6 @@ object header {
             )
           }
       ),
-      ((ctx is u) && u.perfs.bestStandardRating > 2500 && !u.hasTitle && !u.isBot && !ctx.pref.hasSeenVerifyTitle) option
-        views.html.user.bits.claimTitle,
       isGranted(_.UserModView) option div(cls := "mod-zone none"),
       standardFlash(),
       angle match {

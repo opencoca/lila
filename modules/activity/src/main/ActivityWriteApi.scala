@@ -1,7 +1,6 @@
 package lila.activity
 
 import lila.db.dsl._
-import lila.db.ignoreDuplicateKey
 import lila.game.Game
 import lila.study.Study
 import lila.user.User
@@ -176,8 +175,6 @@ final class ActivityWriteApi(
     ranking.map { case (userId, rank) =>
       update(userId) { a => a.copy(swisses = Some(~a.swisses + SwissRank(id, rank))).some }
     }.sequenceFu
-
-  def erase(user: User) = coll.delete.one(regexId(user.id))
 
   private def simulParticipant(simul: lila.simul.Simul, userId: String) =
     update(userId) { a =>

@@ -84,19 +84,21 @@ final class Team(
     )
 
   private def usersExport(teamId: String, me: Option[lila.user.User], req: RequestHeader) = {
-    api.team(teamId) flatMap {
+    api teamEnabled teamId flatMap {
       _ ?? { team =>
         val canView: Fu[Boolean] =
           if (team.publicMembers) fuccess(true)
-          else me match {
-            case Some(user) => api.belongsTo(team.id, user.id)
-            case _ => fuccess(false)
-          }
-        canView map { 
-          case true => apiC.jsonStream (
-            env.team
-              .memberStream(team, MaxPerSecond(20))
-              .map(env.api.userApi.one)
+          else
+            me match {
+              case Some(user) => api.belongsTo(team.id, user.id)
+              case _          => fuccess(false)
+            }
+        canView map {
+          case true =>
+            apiC.jsonStream(
+              env.team
+                .memberStream(team, MaxPerSecond(20))
+                .map(env.api.userApi.one)
             )(req)
           case false => Unauthorized
         }
@@ -106,7 +108,7 @@ final class Team(
 
   def tournaments(teamId: String) =
     Open { implicit ctx =>
-      env.team.teamRepo.enabled(teamId) flatMap {
+      api teamEnabled teamId flatMap {
         _ ?? { team =>
           env.teamInfo.tournaments(team, 30, 30) map { tours =>
             Ok(html.team.tournaments.page(team, tours))
@@ -117,14 +119,14 @@ final class Team(
 
   def edit(id: String) =
     Auth { implicit ctx => _ =>
-      WithOwnedTeam(id) { team =>
+      WithOwnedTeamEnabled(id) { team =>
         fuccess(html.team.form.edit(team, forms edit team))
       }
     }
 
   def update(id: String) =
     AuthBody { implicit ctx => me =>
-      WithOwnedTeam(id) { team =>
+      WithOwnedTeamEnabled(id) { team =>
         implicit val req = ctx.body
         forms
           .edit(team)
@@ -138,7 +140,7 @@ final class Team(
 
   def kickForm(id: String) =
     Auth { implicit ctx => me =>
-      WithOwnedTeam(id) { team =>
+      WithOwnedTeamEnabled(id) { team =>
         env.team.memberRepo userIdsByTeam team.id map { userIds =>
           html.team.admin.kick(team, userIds.filter(me.id !=))
         }
@@ -147,7 +149,7 @@ final class Team(
 
   def kick(id: String) =
     AuthBody { implicit ctx => me =>
-      WithOwnedTeam(id) { team =>
+      WithOwnedTeamEnabled(id) { team =>
         implicit val req = ctx.body
         forms.selectMember.bindFromRequest().value ?? { api.kick(team, _, me) } inject Redirect(
           routes.Team.kickForm(team.id)
@@ -156,7 +158,7 @@ final class Team(
     }
   def kickUser(teamId: String, userId: String) =
     Scoped(_.Team.Write) { _ => me =>
-      api team teamId flatMap {
+      api teamEnabled teamId flatMap {
         _ ?? { team =>
           if (team leaders me.id) api.kick(team, userId, me) inject jsonOkResult
           else Forbidden(jsonError("Not your team")).fuccess
@@ -166,14 +168,14 @@ final class Team(
 
   def leadersForm(id: String) =
     Auth { implicit ctx => _ =>
-      WithOwnedTeam(id) { team =>
+      WithOwnedTeamEnabled(id) { team =>
         Ok(html.team.admin.leaders(team, forms leaders team)).fuccess
       }
     }
 
   def leaders(id: String) =
     AuthBody { implicit ctx => me =>
-      WithOwnedTeam(id) { team =>
+      WithOwnedTeamEnabled(id) { team =>
         implicit val req = ctx.body
         forms.leaders(team).bindFromRequest().value ?? {
           api.setLeaders(team, _, me, isGranted(_.ManageTeam))
@@ -254,7 +256,7 @@ final class Team(
     AuthOrScopedBody(_.Team.Write)(
       auth = implicit ctx =>
         me =>
-          api.team(id) flatMap {
+          api.teamEnabled(id) flatMap {
             _ ?? { team =>
               api hasJoinedTooManyTeams me flatMap { tooMany =>
                 if (tooMany)
@@ -426,7 +428,7 @@ final class Team(
 
   def pmAll(id: String) =
     Auth { implicit ctx => _ =>
-      WithOwnedTeam(id) { team =>
+      WithOwnedTeamEnabled(id) { team =>
         env.tournament.api
           .visibleByTeam(team.id, 0, 20)
           .dmap(_.next)
@@ -440,7 +442,7 @@ final class Team(
     AuthOrScopedBody(_.Team.Write)(
       auth = implicit ctx =>
         me =>
-          WithOwnedTeam(id) { team =>
+          WithOwnedTeamEnabled(id) { team =>
             doPmAll(team, me)(ctx.body).fold(
               err =>
                 env.tournament.api
@@ -454,7 +456,7 @@ final class Team(
           },
       scoped = implicit req =>
         me =>
-          api team id flatMap {
+          api teamEnabled id flatMap {
             _.filter(_ leaders me.id) ?? { team =>
               doPmAll(team, me).fold(
                 err => BadRequest(errorsAsJson(err)(reqLang)).fuccess,
@@ -480,7 +482,7 @@ final class Team(
   def apiShow(id: String) =
     Open { ctx =>
       JsonOptionOk {
-        api team id flatMap {
+        api teamEnabled id flatMap {
           _ ?? { team =>
             for {
               joined    <- ctx.userId.?? { api.belongsTo(id, _) }
@@ -562,5 +564,13 @@ You received this because you are subscribed to messages of the team $url."""
     OptionFuResult(api team teamId) { team =>
       if (ctx.userId.exists(team.leaders.contains) || isGranted(_.ManageTeam)) f(team)
       else renderTeam(team) map { Forbidden(_) }
+    }
+
+  private def WithOwnedTeamEnabled(
+      teamId: String
+  )(f: TeamModel => Fu[Result])(implicit ctx: Context): Fu[Result] =
+    WithOwnedTeam(teamId) { team =>
+      if (team.enabled) f(team)
+      else notFound
     }
 }

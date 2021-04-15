@@ -197,14 +197,15 @@ final class SlackApi(
       )
     )
 
-  def publishRageSit(userId: User.ID, rageSit: Int) = client(
-    SlackMessage(
-      username = "Ragesit offender",
-      icon = "babyrage",
-      text = linkifyUsers(s"${userLink(userId)} rageSit = $rageSit"),
-      channel = rooms.tavernBots
+  def gdprErase(user: User): Funit =
+    client(
+      SlackMessage(
+        username = "lichess",
+        icon = "scream2",
+        text = "GDPR erasure scheduled",
+        channel = rooms.gdprLog
+      )
     )
-  )
 
   private def link(url: String, name: String)         = s"<$url|$name>"
   private def lichessLink(path: String, name: String) = s"<https://lichess.org$path|$name>"
@@ -318,9 +319,9 @@ object SlackApi {
     val tavernLog                       = "tavern-log"
     val signups                         = "signups"
     val broadcast                       = "broadcast"
-    val devNoise                        = "dev-noise"
     def tavernMonitor(tpe: MonitorType) = s"tavern-monitor-${tpe.toString.toLowerCase}"
     val tavernMonitorAll                = "tavern-monitor-all"
+    val gdprLog                         = "gdpr-log"
   }
 
   private[irc] object stage {
